@@ -1,0 +1,59 @@
+/* ─── Google Font ────────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+/* ─── Design Tokens ─────────────────────────────────────────────── */
+:root {
+  --background-default: #0d0d0d;
+  --background-secondary: #161616;
+  --foreground-default: #1a1a1a;
+  --border-normal: #2a2a2a;
+  --strokes-default: #2e2e2e;
+  --primary-default: #c9a84c;
+  --primary-text: #000;
+  --global-text: #f5f5f5;
+  --text-white-50: rgba(255, 255, 255, 0.5);
+  --color-sand: #c9a84c;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: var(--background-default);
+  color: var(--global-text);
+  font-family: "Inter", sans-serif;
+  min-height: 100%;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Icon mask utility ─────────────────────────────────────────── */
+.icon-mask {
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.icon-small {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.icon-14 {
+  width: 0.875rem;
+  height: 0.875rem;
+}
