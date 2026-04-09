@@ -41,9 +41,9 @@ const features = [
 export default function PlatformSection() {
   return (
     <section className="py-20 bg-[var(--background-default)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8">
         {/* Heading */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-[var(--global-text)]">
             Trade with your favorite{" "}
             <span className="text-[var(--primary-default)]">
@@ -53,7 +53,7 @@ export default function PlatformSection() {
         </div>
 
         {/* Platform logo grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
           {platforms.map((p) => (
             <div
               key={p.src}
@@ -70,7 +70,7 @@ export default function PlatformSection() {
         </div>
 
         {/* Trade on */}
-        <p className="text-sm font-semibold text-center text-[var(--global-text)] mb-8">
+        <p className="text-sm font-semibold text-center text-[var(--global-text)] mb-12">
           Trade on:{" "}
           <span className="text-[var(--text-white-50)]">
             FX pairs / stocks / ETFs / crypto pairs
@@ -78,7 +78,7 @@ export default function PlatformSection() {
         </p>
 
         {/* Feature bullets */}
-        <div className="flex flex-col sm:flex-row justify-center gap-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-10">
           {features.map((f) => (
             <div key={f.label} className="flex items-center gap-3">
               <IconMask

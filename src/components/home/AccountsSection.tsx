@@ -283,7 +283,7 @@ export default function AccountsSection() {
               </div>
               <Button
                 as="a"
-                href="#"
+                href="/login"
                 variant="featured"
                 className="w-full justify-center py-3 text-base"
               >
@@ -312,7 +312,7 @@ export default function AccountsSection() {
               <CopyCode code="FIRSTSFX" />
               <Button
                 as="a"
-                href="#get-funded"
+                href="/login"
                 variant="featured"
                 className="w-full justify-center"
               >

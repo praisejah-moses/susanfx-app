@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../ui/Logo";
-import Button from "../ui/Button";
 import { useMobileMenu } from "../../hooks/useMobileMenu";
 
 export default function Navbar() {
@@ -22,10 +21,10 @@ export default function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:px-8">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <Logo height={36} />
+          <Logo height={100} />
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-3">
@@ -35,9 +34,12 @@ export default function Navbar() {
             >
               Log In
             </Link>
-            <Button as="a" href="#get-funded" variant="featured">
+            <Link
+              to="/login"
+              className="px-5 py-2.5 rounded-lg font-medium text-sm bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-90 transition-opacity"
+            >
               Get Funded
-            </Button>
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
@@ -75,13 +77,13 @@ export default function Navbar() {
           >
             Log In
           </Link>
-          <a
-            href="#get-funded"
+          <Link
+            to="/login"
             onClick={close}
             className="px-5 py-2.5 rounded-lg font-medium text-sm bg-[var(--primary-default)] text-[var(--primary-text)] text-center"
           >
             Get Funded
-          </a>
+          </Link>
         </div>
       )}
     </nav>

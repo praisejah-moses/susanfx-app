@@ -26,32 +26,33 @@ export default function CountriesSection() {
   return (
     <section className="py-20 bg-[var(--background-default)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-center">
-          {/* Left: heading + globe */}
-          <div className="flex-1 text-center lg:text-left">
-            <h2 className="text-4xl md:text-5xl font-bold text-[var(--global-text)] mb-3">
-              Available in 182+ Countries
-            </h2>
-            <p className="text-lg font-semibold text-[var(--text-white-50)]">
-              Trade better wherever you are
-            </p>
-            <div className="mt-6 flex justify-center lg:justify-start">
-              <img
-                src="/images/index/6937f1b294455e83ff539450_Globe Image.webp"
-                alt="Globe"
-                loading="lazy"
-                className="w-72 h-72 object-contain"
-              />
-            </div>
-          </div>
+        {/* Heading */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-[var(--global-text)] mb-3">
+            Available in 182+ Countries
+          </h2>
+          <p className="text-lg font-semibold text-[var(--text-white-50)]">
+            Trade better wherever you are
+          </p>
+        </div>
 
-          {/* Right: flag carousel */}
-          <div className="flex-1 overflow-hidden">
-            <div className="relative">
+        {/* Globe with flags overlay */}
+        <div className="relative flex justify-center items-center">
+          {/* Globe */}
+          <img
+            src="/images/index/6937f1b294455e83ff539450_Globe Image.webp"
+            alt="Globe"
+            loading="lazy"
+            className="w-96 h-96 object-contain"
+          />
+
+          {/* Flag carousel overlay */}
+          <div className="absolute overflow-hidden w-full max-w-3xl">
+            <div className="relative h-20">
               {/* Gradient fade masks */}
               <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[var(--background-default)] to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[var(--background-default)] to-transparent z-10 pointer-events-none" />
-              <div className="overflow-hidden">
+              <div className="overflow-hidden h-full">
                 <div className="flex gap-8 animate-marquee w-max">
                   {track.map((flag, i) => (
                     <div

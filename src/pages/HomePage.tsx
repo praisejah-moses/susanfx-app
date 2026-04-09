@@ -1,5 +1,5 @@
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
+import Navbar from "../components/home/Navbar";
+import Footer from "../components/home/Footer";
 import HeroSection from "../components/home/HeroSection";
 import BrandsSection from "../components/home/BrandsSection";
 import AccountsSection from "../components/home/AccountsSection";
@@ -17,12 +17,11 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <BrandsSection />
-        <AccountsSection />
         <HowItWorksSection />
-        <FeaturesSection />
         <PlatformSection />
         <CountriesSection />
-        <SupportSection />
+        <FeaturesSection />
+        {/* <SupportSection /> */}
         <CTASection />
       </main>
       <Footer />

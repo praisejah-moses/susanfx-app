@@ -36,7 +36,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2 flex flex-col gap-4">
-            <Logo height={36} />
+            <Logo height={100} />
             <p className="text-sm text-[var(--text-white-50)]">
               ©2026 SusanFxTrader. All rights reserved.
             </p>
