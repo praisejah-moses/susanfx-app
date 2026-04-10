@@ -1,11 +1,6 @@
 import IconMask from "../ui/IconMask";
 import Button from "../ui/Button";
 
-const SHIELD_ICON =
-  "https://cdn.prod.website-files.com/692d3a3e37a293dd19f3b43e/692e4659e7e3af88f0bdb7dd_icon-shield.webp";
-const ARROW_RIGHT_ICON =
-  "https://cdn.prod.website-files.com/692d3a3e37a293dd19f3b43e/692e4659e7e3af88f0bdb7d8_icon-arrow-right.webp";
-
 const steps = [
   {
     img: "/images/index/693240330f7b6093e29534ef_HIW Unlock Capital.webp",
