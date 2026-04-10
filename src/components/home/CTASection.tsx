@@ -2,8 +2,7 @@ import { useState } from "react";
 import Button from "../ui/Button";
 import IconMask from "../ui/IconMask";
 
-const ARROW_ICON =
-  "https://cdn.prod.website-files.com/692d3a3e37a293dd19f3b43e/692fa452ca73ac3398155143_arrow-right.webp";
+const ARROW_ICON = "/images/index/692fa452ca73ac3398155143_arrow-right.webp";
 
 type FormStatus = "idle" | "success" | "error";
 
@@ -20,12 +19,12 @@ export default function CTASection() {
   }
 
   return (
-    <section className="py-20 bg-[var(--background-default)]">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Discord CTA */}
-          <div className="flex flex-col justify-between bg-[var(--background-secondary)] border border-[var(--border-normal)] rounded-2xl p-8 gap-6">
-            <h3 className="text-2xl md:text-3xl font-bold text-[var(--global-text)]">
+          <div className="flex flex-col justify-between bg-white border border-gray-200 rounded-2xl p-8 gap-6">
+            <h3 className="text-2xl md:text-3xl font-bold text-black">
               Level up. Join our Community.
             </h3>
             <Button
@@ -44,13 +43,13 @@ export default function CTASection() {
           </div>
 
           {/* Email CTA */}
-          <div className="flex flex-col justify-between bg-[var(--background-secondary)] border border-[var(--border-normal)] rounded-2xl p-8 gap-6">
-            <h3 className="text-2xl md:text-3xl font-bold text-[var(--global-text)]">
+          <div className="flex flex-col justify-between bg-white border border-gray-200 rounded-2xl p-8 gap-6">
+            <h3 className="text-2xl md:text-3xl font-bold text-black">
               Exclusive Discounts &amp; Giveaways
             </h3>
 
             {status === "success" ? (
-              <p className="text-[var(--global-text)] font-medium">
+              <p className="text-black font-medium">
                 Thank you! Your submission has been received!
               </p>
             ) : status === "error" ? (
@@ -68,11 +67,11 @@ export default function CTASection() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="flex-1 bg-[var(--background-default)] border border-[var(--border-normal)] rounded-lg px-4 py-3 text-[var(--global-text)] placeholder:text-[var(--text-white-50)] focus:outline-none focus:border-[var(--primary-default)]"
+                  className="flex-1 bg-white border border-gray-300 rounded-lg px-4 py-3 text-black placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
                 />
                 <button
                   type="submit"
-                  className="bg-[var(--primary-default)] text-[var(--primary-text)] font-bold px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                  className="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Send
                 </button>

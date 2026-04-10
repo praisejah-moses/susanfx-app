@@ -1,10 +1,8 @@
 import IconMask from "../ui/IconMask";
 import Button from "../ui/Button";
 
-const TROPHY_ICON =
-  "https://cdn.prod.website-files.com/692d3a3e37a293dd19f3b43e/692e4659e7e3af88f0bdb7d5_icon-trophy.webp";
-const ARROW_ICON =
-  "https://cdn.prod.website-files.com/692d3a3e37a293dd19f3b43e/692e4659e7e3af88f0bdb7d8_icon-arrow-right.webp";
+const TROPHY_ICON = "/images/index/692ed0387f2ed70bd61379bd_icon-trophy.webp";
+const ARROW_ICON = "/images/index/692fa452ca73ac3398155143_arrow-right.webp";
 
 const featureCards = [
   {
@@ -47,42 +45,33 @@ export default function FeaturesSection() {
     <section className="py-20 bg-[var(--background-default)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top heading */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-12">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-bold text-[var(--global-text)] leading-tight">
-              Trading
-              <br />
-              <span className="text-[var(--text-white-50)]">
-                But with less risk
-              </span>
-              <br />
-              With More Capital
-              <br />
-              And More Reward
-            </h2>
-          </div>
-          <div className="flex flex-col gap-4 justify-center">
-            <p className="text-[var(--text-white-50)] text-lg">
-              Simulated Capital with Real Rewards. Paid Fast &amp; Secure.
-            </p>
-            <div className="flex flex-wrap gap-3 items-center">
-              <Button
-                as="a"
-                href="#get-funded"
-                variant="featured"
-                className="gap-2"
-              >
-                Get Funded
-                <IconMask
-                  url={ARROW_ICON}
-                  size="0.9rem"
-                  color="var(--primary-text)"
-                />
-              </Button>
-              <span className="text-sm text-[var(--text-white-50)]">
-                Join 240,000+ Traders
-              </span>
-            </div>
+        <div className="text-center mb-16">
+          <h2 className="text-6xl md:text-7xl font-bold text-[var(--global-text)] leading-tight max-w-5xl mx-auto">
+            Trading
+            <br />
+            <span className="text-[var(--text-white-50)]">
+              But with less risk
+            </span>
+            <br />
+            With More Capital
+            <br />
+            And More Reward
+          </h2>
+          <p className="text-[var(--text-white-50)] text-lg mt-6 max-w-2xl mx-auto">
+            Simulated Capital with Real Rewards. Paid Fast &amp; Secure.
+          </p>
+          <div className="flex flex-wrap gap-3 items-center justify-center mt-6">
+            <Button as="a" href="/login" variant="featured" className="gap-2">
+              Get Funded
+              <IconMask
+                url={ARROW_ICON}
+                size="0.9rem"
+                color="var(--primary-text)"
+              />
+            </Button>
+            <span className="text-sm text-[var(--text-white-50)]">
+              Join 240,000+ Traders
+            </span>
           </div>
         </div>
 
@@ -91,14 +80,14 @@ export default function FeaturesSection() {
           {featureCards.map((card) => (
             <div
               key={card.title}
-              className="relative overflow-hidden rounded-2xl p-6 min-h-[200px] flex flex-col justify-end border border-[var(--border-normal)]"
+              className="relative overflow-hidden rounded-2xl p-6 min-h-[200px] flex flex-col justify-center items-center border border-[var(--border-normal)]"
             >
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url('${card.bg}')` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="relative z-10">
+              <div className="relative z-10 text-center ">
                 <p className="font-bold text-[var(--global-text)] text-base mb-1">
                   {card.title}
                 </p>
@@ -137,7 +126,7 @@ export default function FeaturesSection() {
           <div className="flex flex-col items-center gap-3">
             <Button
               as="a"
-              href="#get-funded"
+              href="/login"
               variant="featured"
               className="text-base px-8 py-3 gap-2"
             >

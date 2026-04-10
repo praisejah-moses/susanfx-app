@@ -3,8 +3,8 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────── */
 :root {
-  --background-default: #0d0d0d;
-  --background-secondary: #161616;
+  --background-default: #000;
+  --background-secondary: #000;
   --foreground-default: #1a1a1a;
   --border-normal: #2a2a2a;
   --strokes-default: #2e2e2e;

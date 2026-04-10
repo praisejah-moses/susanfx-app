@@ -14,7 +14,7 @@ export default function LoginForm() {
 
   return (
     <div className="relative flex flex-col items-center w-full max-w-sm pt-4 px-4 bg-[var(--background-default)] rounded-3xl border border-[var(--border-normal)]">
-      <Logo height={52} />
+      <Logo height={100} />
 
       <h5 className="text-xl font-semibold mt-8 text-[var(--global-text)]">
         Welcome
