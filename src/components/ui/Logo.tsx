@@ -7,7 +7,7 @@ export default function Logo({ className = "", height = 32 }: LogoProps) {
   return (
     <a href="/" className={`inline-flex items-center ${className}`}>
       <img
-        src="/images/shared/logo.png"
+        src="/images/shared/logo.svg"
         alt="SusanFX Trader"
         height={height}
         style={{ height: `${height}px`, width: "auto" }}
