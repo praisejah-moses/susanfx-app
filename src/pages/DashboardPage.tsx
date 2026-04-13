@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import StatCard from "../components/dashboard/StatCard";
 
@@ -55,35 +56,52 @@ const recentTrades = [
 ];
 
 export default function DashboardPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-[var(--background-default)] text-(--global-text)">
-      <DashboardSidebar />
+    <div className="min-h-screen bg-(--background-default) text-(--global-text)">
+      <DashboardSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       {/* Main content */}
-      <div className="ml-60 flex flex-col min-h-screen">
+      <div className="md:ml-60 flex flex-col min-h-screen">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-[var(--background-default)]/95 backdrop-blur border-b border-(--border-normal) px-8 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold">Overview</h1>
-            <p className="text-xs text-(--text-white-50)">
+        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
+          {/* Hamburger (mobile only) */}
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <span className="block w-5 h-0.5 bg-white" />
+            <span className="block w-5 h-0.5 bg-white" />
+            <span className="block w-5 h-0.5 bg-white" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base md:text-lg font-semibold">Overview</h1>
+            <p className="text-xs text-(--text-white-50) hidden sm:block">
               Welcome back, Trader
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Phase 1 Active
             </span>
-            <button className="px-4 py-2 rounded-lg text-sm font-medium bg-(--primary-default) text-black hover:opacity-90 transition-opacity">
+            {/* Mobile phase badge (icon only) */}
+            <span className="sm:hidden w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <button className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium bg-(--primary-default) text-black hover:opacity-90 transition-opacity whitespace-nowrap">
               Request Payout
             </button>
           </div>
         </header>
 
         {/* Page body */}
-        <main className="flex-1 px-8 py-8 space-y-8">
+        <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-5 md:space-y-8">
           {/* Stat cards */}
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             <StatCard
               label="Account Balance"
               value="$102,490"

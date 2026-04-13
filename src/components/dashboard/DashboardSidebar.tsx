@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Logo from "../ui/Logo";
 
 const navItems = [
@@ -120,51 +121,80 @@ const navItems = [
   },
 ];
 
-export default function DashboardSidebar() {
+interface DashboardSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function DashboardSidebar({
+  isOpen,
+  onClose,
+}: DashboardSidebarProps) {
+  const location = useLocation();
+
+  // Close sidebar on navigation on mobile
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <aside className="fixed top-0 left-0 h-full w-60 flex flex-col bg-[#0a0a0a] border-r border-(--border-normal) z-40">
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-(--border-normal)">
-        <Logo height={80} />
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.label}
-            to={item.to}
-            end={item.to === "/dashboard"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? "bg-(--primary-default)/10 text-(--primary-default)"
-                  : "text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
-              }`
-            }
-          >
-            {item.icon}
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 flex flex-col bg-[#0a0a0a] border-r border-(--border-normal) z-40 transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:w-60`}
+      >
+        {/* Logo */}
+        <div className="px-6 py-5 border-b border-(--border-normal)">
+          <Logo height={80} />
+        </div>
 
-      {/* User */}
-      <div className="px-4 py-4 border-t border-(--border-normal)">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-(--primary-default) flex items-center justify-center text-black font-bold text-sm shrink-0">
-            T
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-(--global-text) truncate">
-              Trader
-            </p>
-            <p className="text-xs text-(--text-white-50) truncate">
-              trader@susanfx.com
-            </p>
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              end={item.to === "/dashboard"}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                  isActive
+                    ? "bg-(--primary-default)/10 text-(--primary-default)"
+                    : "text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
+                }`
+              }
+            >
+              {item.icon}
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* User */}
+        <div className="px-4 py-4 border-t border-(--border-normal)">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-(--primary-default) flex items-center justify-center text-black font-bold text-sm shrink-0">
+              T
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-(--global-text) truncate">
+                Trader
+              </p>
+              <p className="text-xs text-(--text-white-50) truncate">
+                trader@susanfx.com
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
