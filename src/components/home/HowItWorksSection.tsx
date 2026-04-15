@@ -24,7 +24,12 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-20 bg-white">
+    <section
+      className="py-20 bg-white relative overflow-hidden animate-fadeInUp"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='%23000000' stroke-width='0.5' opacity='0.03'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <div className="text-center mb-5">

@@ -13,12 +13,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   featured:
-    "bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-90",
-  white: "bg-white text-black hover:opacity-90",
+    "bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-90 hover:scale-105 active:scale-95",
+  white: "bg-white text-black hover:opacity-90 hover:scale-105 active:scale-95",
   "dark-gray":
-    "bg-[#1a1a1a] text-white border border-[var(--border-normal)] hover:opacity-90",
+    "bg-[#1a1a1a] text-white border border-[var(--border-normal)] hover:opacity-90 hover:scale-105 active:scale-95",
   login:
-    "bg-[var(--background-secondary)] text-[var(--global-text)] border border-[var(--border-normal)] hover:opacity-90",
+    "bg-[var(--background-secondary)] text-[var(--global-text)] border border-[var(--border-normal)] hover:opacity-90 hover:scale-105 active:scale-95",
 };
 
 export default function Button({
@@ -32,7 +32,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm transition-opacity cursor-pointer";
+    "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm transition-smooth cursor-pointer";
   const cls = `${base} ${variantClasses[variant]} ${className}`;
 
   if (as === "a" && href) {

@@ -8,11 +8,11 @@
   --foreground-default: #1a1a1a;
   --border-normal: #2a2a2a;
   --strokes-default: #2e2e2e;
-  --primary-default: #c9a84c;
-  --primary-text: #000;
+  --primary-default: #3b82f6;
+  --primary-text: #fff;
   --global-text: #f5f5f5;
   --text-white-50: rgba(255, 255, 255, 0.5);
-  --color-sand: #c9a84c;
+  --color-blue: #3b82f6;
 }
 
 /* ─── Base ──────────────────────────────────────────────────────── */
@@ -46,6 +46,144 @@ body {
   mask-position: center;
   display: inline-block;
   flex-shrink: 0;
+}
+
+/* ─── Custom Animations ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes underlineExpand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes tabSlideContentIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animation utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-fadeInDown {
+  animation: fadeInDown 0.4s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-tabSlideContentIn {
+  animation: tabSlideContentIn 0.25s ease-out forwards;
+}
+
+/* Stagger animation delays */
+.animate-delay-75 {
+  animation-delay: 75ms;
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-150 {
+  animation-delay: 150ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s ease-out;
+}
+
+.transition-smooth-fast {
+  transition: all 0.15s ease-out;
 }
 
 .icon-small {

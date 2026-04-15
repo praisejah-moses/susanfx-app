@@ -19,7 +19,12 @@ export default function CTASection() {
   }
 
   return (
-    <section className="py-20 bg-white">
+    <section
+      className="py-20 bg-white relative overflow-hidden animate-fadeInUp"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='40' height='40' fill='none' stroke='%23000000' stroke-width='0.5' opacity='0.04'/%3E%3Ccircle cx='30' cy='30' r='3' fill='%23000000' opacity='0.03'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Discord CTA */}

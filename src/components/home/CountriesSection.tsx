@@ -24,7 +24,12 @@ export default function CountriesSection() {
   const track = [...flags, ...flags];
 
   return (
-    <section className="py-20 bg-[var(--background-default)]">
+    <section
+      className="py-20 bg-[var(--background-default)] relative overflow-hidden animate-fadeInUp"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50L50 0 100 50 50 100Z' fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.05'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <div className="text-center mb-12">

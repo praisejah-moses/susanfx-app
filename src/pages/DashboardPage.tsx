@@ -1,62 +1,43 @@
 import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import StatCard from "../components/dashboard/StatCard";
+import { useAuth } from "../context/AuthContext";
+import { useTrades } from "../hooks/useTrades";
+import { useAccount } from "../hooks/useAccount";
 
-const recentTrades = [
-  {
-    id: 1,
-    pair: "EUR/USD",
-    type: "Buy",
-    size: "1.00",
-    openPrice: "1.0842",
-    closePrice: "1.0891",
-    pnl: "+$490.00",
-    status: "Closed",
-  },
-  {
-    id: 2,
-    pair: "GBP/USD",
-    type: "Sell",
-    size: "0.50",
-    openPrice: "1.2734",
-    closePrice: "1.2698",
-    pnl: "+$180.00",
-    status: "Closed",
-  },
-  {
-    id: 3,
-    pair: "XAU/USD",
-    type: "Buy",
-    size: "0.10",
-    openPrice: "2318.40",
-    closePrice: "—",
-    pnl: "+$220.00",
-    status: "Open",
-  },
-  {
-    id: 4,
-    pair: "USD/JPY",
-    type: "Sell",
-    size: "1.00",
-    openPrice: "154.22",
-    closePrice: "154.88",
-    pnl: "-$430.00",
-    status: "Closed",
-  },
-  {
-    id: 5,
-    pair: "NAS100",
-    type: "Buy",
-    size: "0.20",
-    openPrice: "17840.0",
-    closePrice: "17920.0",
-    pnl: "+$160.00",
-    status: "Closed",
-  },
-];
+function fmt(n: number, decimals = 2) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(n);
+}
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+  const { trades, loading: tradesLoading } = useTrades(user?.id);
+  const { account } = useAccount(user?.id);
+
+  const userName =
+    user?.user_metadata?.first_name ||
+    user?.email?.split("@")[0] ||
+    "Trader";
+
+  // Derived account metrics
+  const balance      = account?.balance          ?? 0;
+  const startBalance = account?.starting_balance ?? 0;
+  const profit       = balance - startBalance;
+  const profitPct    = startBalance > 0 ? (profit / startBalance) * 100 : 0;
+  const profitTarget = account?.profit_target     ?? 10000;
+  const targetPct    = startBalance > 0 ? Math.min((profit / profitTarget) * 100, 100) : 0;
+  const dailyDD      = account?.daily_drawdown    ?? 0;
+  const maxDD        = account?.max_drawdown      ?? 0;
+  const phase        = account?.phase             ?? "Phase 1";
+
+  // Recent trades: 5 most recent
+  const recentTrades = trades.slice(0, 5);
 
   return (
     <div className="min-h-screen bg-(--background-default) text-(--global-text)">
@@ -82,13 +63,13 @@ export default function DashboardPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-base md:text-lg font-semibold">Overview</h1>
             <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Welcome back, Trader
+              Welcome back, {userName}
             </p>
           </div>
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
             <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Phase 1 Active
+              {phase} Active
             </span>
             {/* Mobile phase badge (icon only) */}
             <span className="sm:hidden w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -102,95 +83,103 @@ export default function DashboardPage() {
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-5 md:space-y-8">
           {/* Stat cards */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            <StatCard
-              label="Account Balance"
-              value="$102,490"
-              subtext="Starting balance: $100,000"
-              trend="up"
-              trendValue="2.49%"
-              icon={
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              }
-            />
-            <StatCard
-              label="Total Profit"
-              value="$2,490"
-              subtext="Target: $10,000 (8%)"
-              trend="up"
-              trendValue="2.49%"
-              icon={
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                  <polyline points="16 7 22 7 22 13" />
-                </svg>
-              }
-            />
-            <StatCard
-              label="Daily Drawdown"
-              value="1.20%"
-              subtext="Limit: 5.00%"
-              trend="neutral"
-              trendValue="Safe"
-              icon={
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              }
-            />
-            <StatCard
-              label="Max Drawdown"
-              value="3.50%"
-              subtext="Limit: 10.00%"
-              trend="neutral"
-              trendValue="Safe"
-              icon={
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-              }
-            />
+            <div className="animate-fadeInUp">
+              <StatCard
+                label="Account Balance"
+                value={fmt(balance)}
+                subtext={`Starting balance: ${fmt(startBalance)}`}
+                trend="up"
+                trendValue={`${profitPct.toFixed(2)}%`}
+                icon={
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                }
+              />
+            </div>
+            <div className="animate-fadeInUp animate-delay-75">
+              <StatCard
+                label="Total Profit"
+                value={fmt(profit)}
+                subtext={`Target: ${fmt(profitTarget)} (8%)`}
+                trend={profit >= 0 ? "up" : "down"}
+                trendValue={`${profitPct.toFixed(2)}%`}
+                icon={
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                    <polyline points="16 7 22 7 22 13" />
+                  </svg>
+                }
+              />
+            </div>
+            <div className="animate-fadeInUp animate-delay-150">
+              <StatCard
+                label="Daily Drawdown"
+                value={`${dailyDD.toFixed(2)}%`}
+                subtext="Limit: 5.00%"
+                trend="neutral"
+                trendValue={dailyDD < 5 ? "Safe" : "Warning"}
+                icon={
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                }
+              />
+            </div>
+            <div className="animate-fadeInUp animate-delay-200">
+              <StatCard
+                label="Max Drawdown"
+                value={`${maxDD.toFixed(2)}%`}
+                subtext="Limit: 10.00%"
+                trend="neutral"
+                trendValue={maxDD < 10 ? "Safe" : "Warning"}
+                icon={
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                }
+              />
+            </div>
           </section>
 
           {/* Progress bars */}
@@ -200,18 +189,18 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Profit Target</span>
                 <span className="text-xs text-(--primary-default) font-semibold">
-                  24.9% complete
+                  {targetPct.toFixed(1)}% complete
                 </span>
               </div>
               <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-(--primary-default) rounded-full"
-                  style={{ width: "24.9%" }}
+                  style={{ width: `${targetPct}%` }}
                 />
               </div>
               <div className="flex justify-between text-xs text-(--text-white-50)">
-                <span>Current: $2,490</span>
-                <span>Target: $10,000</span>
+                <span>Current: {fmt(profit)}</span>
+                <span>Target: {fmt(profitTarget)}</span>
               </div>
             </div>
 
@@ -262,7 +251,11 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-(--border-normal)">
-                  {recentTrades.map((trade) => (
+                  {tradesLoading ? (
+                    <tr><td colSpan={7} className="px-6 py-8 text-center text-xs text-(--text-white-50)">Loading trades…</td></tr>
+                  ) : recentTrades.length === 0 ? (
+                    <tr><td colSpan={7} className="px-6 py-8 text-center text-xs text-(--text-white-50)">No trades yet</td></tr>
+                  ) : recentTrades.map((trade) => (
                     <tr
                       key={trade.id}
                       className="hover:bg-white/2 transition-colors"
@@ -283,19 +276,17 @@ export default function DashboardPage() {
                         {trade.size}
                       </td>
                       <td className="px-6 py-4 text-(--text-white-50)">
-                        {trade.openPrice}
+                        {trade.open_price}
                       </td>
                       <td className="px-6 py-4 text-(--text-white-50)">
-                        {trade.closePrice}
+                        {trade.close_price ?? "—"}
                       </td>
                       <td
                         className={`px-6 py-4 font-medium ${
-                          trade.pnl.startsWith("+")
-                            ? "text-emerald-400"
-                            : "text-red-400"
+                          (trade.pnl ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"
                         }`}
                       >
-                        {trade.pnl}
+                        {trade.pnl != null ? fmt(trade.pnl) : "—"}
                       </td>
                       <td className="px-6 py-4">
                         <span
@@ -320,10 +311,10 @@ export default function DashboardPage() {
             <h2 className="text-sm font-semibold mb-4">Account Rules</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
-                { label: "Daily drawdown ≤ 5%", pass: true },
-                { label: "Max drawdown ≤ 10%", pass: true },
+                { label: "Daily drawdown ≤ 5%", pass: dailyDD < 5 },
+                { label: "Max drawdown ≤ 10%", pass: maxDD < 10 },
                 { label: "Minimum trading days (10)", pass: false },
-                { label: "Profit target reached (8%)", pass: false },
+                { label: `Profit target reached (8%)`, pass: profitPct >= 8 },
                 { label: "No weekend holding", pass: true },
                 { label: "No copy trading / EA violations", pass: true },
               ].map((rule) => (

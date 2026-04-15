@@ -19,7 +19,6 @@ export default function HomePage() {
         <PlatformSection />
         <CountriesSection />
         <FeaturesSection />
-        {/* <SupportSection /> */}
         <CTASection />
       </main>
       <Footer />

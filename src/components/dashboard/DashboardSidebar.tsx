@@ -1,6 +1,7 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Logo from "../ui/Logo";
+import { useAuth } from "../../context/AuthContext";
 
 const navItems = [
   {
@@ -131,11 +132,18 @@ export default function DashboardSidebar({
   onClose,
 }: DashboardSidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   // Close sidebar on navigation on mobile
   useEffect(() => {
     onClose();
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleSignOut() {
+    await signOut();
+    navigate("/auth");
+  }
 
   return (
     <>
@@ -182,16 +190,38 @@ export default function DashboardSidebar({
         <div className="px-4 py-4 border-t border-(--border-normal)">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-(--primary-default) flex items-center justify-center text-black font-bold text-sm shrink-0">
-              T
+              {user?.email?.[0]?.toUpperCase() ?? "T"}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-(--global-text) truncate">
-                Trader
+                {user?.user_metadata?.first_name ||
+                  user?.email?.split("@")[0] ||
+                  "Trader"}
               </p>
               <p className="text-xs text-(--text-white-50) truncate">
-                trader@susanfx.com
+                {user?.email ?? ""}
               </p>
             </div>
+            <button
+              onClick={handleSignOut}
+              aria-label="Sign out"
+              className="shrink-0 text-(--text-white-50) hover:text-red-400 transition-colors"
+            >
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
           </div>
         </div>
       </aside>

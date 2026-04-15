@@ -244,7 +244,7 @@ export default function DashboardTradingPage() {
               </div>
 
               {/* Tab content */}
-              <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto animate-tabSlideContentIn">
                 {activeTab === "positions" ? (
                   <table className="w-full text-xs min-w-140">
                     <thead className="sticky top-0 bg-[#0a0a0a]">

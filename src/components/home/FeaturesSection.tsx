@@ -42,7 +42,12 @@ const withdrawCards = [
 
 export default function FeaturesSection() {
   return (
-    <section className="py-20 bg-[var(--background-default)]">
+    <section
+      className="py-20 bg-[var(--background-default)] relative overflow-hidden animate-fadeInUp"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0v80M0 40h80' stroke='%23ffffff' stroke-width='0.5' opacity='0.06'/%3E%3Ccircle cx='20' cy='20' r='1' fill='%23ffffff' opacity='0.08'/%3E%3Ccircle cx='60' cy='60' r='1' fill='%23ffffff' opacity='0.08'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top heading */}
         <div className="text-center mb-16">

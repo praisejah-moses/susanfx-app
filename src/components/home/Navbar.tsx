@@ -29,13 +29,13 @@ export default function Navbar() {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              to="/login"
+              to="/auth"
               className="px-5 py-2.5 rounded-lg font-medium text-sm text-[var(--global-text)] border border-[var(--border-normal)] hover:opacity-80 transition-opacity"
             >
               Log In
             </Link>
             <Link
-              to="/login"
+              to="/auth"
               className="px-5 py-2.5 rounded-lg font-medium text-sm bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-90 transition-opacity"
             >
               Get Funded
@@ -71,14 +71,14 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-[var(--background-secondary)] border-t border-[var(--border-normal)] px-4 py-4 flex flex-col gap-3">
           <Link
-            to="/login"
+            to="/auth"
             onClick={close}
             className="px-5 py-2.5 rounded-lg font-medium text-sm text-[var(--global-text)] border border-[var(--border-normal)] text-center"
           >
             Log In
           </Link>
           <Link
-            to="/login"
+            to="/auth"
             onClick={close}
             className="px-5 py-2.5 rounded-lg font-medium text-sm bg-[var(--primary-default)] text-[var(--primary-text)] text-center"
           >

@@ -40,7 +40,12 @@ const features = [
 
 export default function PlatformSection() {
   return (
-    <section className="py-20 bg-[var(--background-default)]">
+    <section
+      className="py-20 bg-[var(--background-default)] relative overflow-hidden animate-fadeInUp"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='25' cy='25' r='2' fill='%23ffffff' opacity='0.08'/%3E%3Ccircle cx='5' cy='5' r='1.5' fill='%23ffffff' opacity='0.05'/%3E%3Ccircle cx='45' cy='45' r='1.5' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8">
         {/* Heading */}
         <div className="text-center mb-16">

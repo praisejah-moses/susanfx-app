@@ -1,15 +1,30 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../ui/Logo";
+import { supabase } from "../../utils/supabase";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Placeholder: authentication hook can be wired here
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      navigate("/dashboard");
+    }
   }
 
   return (
@@ -112,12 +127,16 @@ export default function LoginForm() {
           Forgot Password?
         </Link>
 
+        {/* Error message */}
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
         {/* Submit */}
         <button
           type="submit"
-          className="h-9 py-3 px-[18px] text-sm font-semibold flex items-center justify-center gap-2 bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-70 rounded-lg transition-opacity"
+          disabled={loading}
+          className="h-9 py-3 px-[18px] text-sm font-semibold flex items-center justify-center gap-2 bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-70 rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Login
+          {loading ? "Logging in…" : "Login"}
         </button>
       </form>
 

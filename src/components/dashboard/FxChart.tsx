@@ -104,12 +104,12 @@ export default function FxChart({ symbol }: FxChartProps) {
       },
       crosshair: {
         vertLine: {
-          color: "rgba(201,168,76,0.4)",
-          labelBackgroundColor: "#c9a84c",
+          color: "rgba(59,130,246,0.4)",
+          labelBackgroundColor: "#3b82f6",
         },
         horzLine: {
-          color: "rgba(201,168,76,0.4)",
-          labelBackgroundColor: "#c9a84c",
+          color: "rgba(59,130,246,0.4)",
+          labelBackgroundColor: "#3b82f6",
         },
       },
       rightPriceScale: { borderColor: "#2a2a2a" },
@@ -154,7 +154,7 @@ export default function FxChart({ symbol }: FxChartProps) {
       candleSeriesRef.current = series;
     } else {
       const series = chart.addSeries(LineSeries, {
-        color: "#c9a84c",
+        color: "#3b82f6",
         lineWidth: 2,
         crosshairMarkerVisible: true,
         crosshairMarkerRadius: 5,
