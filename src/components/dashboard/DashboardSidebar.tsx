@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Logo from "../ui/Logo";
 import { useAuth } from "../../context/AuthContext";
 
@@ -45,7 +45,7 @@ const navItems = [
     to: "/dashboard/trading",
   },
   {
-    label: "Withdrawals",
+    label: "Finances",
     icon: (
       <svg
         width="18"
@@ -60,7 +60,16 @@ const navItems = [
         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     ),
-    to: "/dashboard/withdrawals",
+    children: [
+      {
+        label: "Withdrawals",
+        to: "/dashboard/withdrawals",
+      },
+      {
+        label: "Deposits",
+        to: "/dashboard/deposits",
+      },
+    ],
   },
   {
     label: "Rewards",
@@ -134,11 +143,34 @@ export default function DashboardSidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   // Close sidebar on navigation on mobile
   useEffect(() => {
     onClose();
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-expand parent if child is active
+  useEffect(() => {
+    navItems.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some((child) =>
+          location.pathname.startsWith(child.to),
+        );
+        if (hasActiveChild && !expandedItems.includes(item.label)) {
+          setExpandedItems((prev) => [...prev, item.label]);
+        }
+      }
+    });
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function toggleDropdown(label: string) {
+    setExpandedItems((prev) =>
+      prev.includes(label)
+        ? prev.filter((item) => item !== label)
+        : [...prev, label],
+    );
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -168,21 +200,68 @@ export default function DashboardSidebar({
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
           {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              end={item.to === "/dashboard"}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  isActive
-                    ? "bg-(--primary-default)/10 text-(--primary-default)"
-                    : "text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
-                }`
-              }
-            >
-              {item.icon}
-              {item.label}
-            </NavLink>
+            <div key={item.label}>
+              {item.children ? (
+                <>
+                  <button
+                    onClick={() => toggleDropdown(item.label)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
+                  >
+                    {item.icon}
+                    {item.label}
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`ml-auto transition-transform duration-200 ${
+                        expandedItems.includes(item.label) ? "rotate-180" : ""
+                      }`}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {expandedItems.includes(item.label) && (
+                    <div className="mt-1 space-y-1 pl-6">
+                      {item.children.map((child) => (
+                        <NavLink
+                          key={child.label}
+                          to={child.to}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                              isActive
+                                ? "bg-(--primary-default)/10 text-(--primary-default)"
+                                : "text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
+                            }`
+                          }
+                        >
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <NavLink
+                  to={item.to}
+                  end={item.to === "/dashboard"}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                      isActive
+                        ? "bg-(--primary-default)/10 text-(--primary-default)"
+                        : "text-(--text-white-50) hover:text-(--global-text) hover:bg-white/5"
+                    }`
+                  }
+                >
+                  {item.icon}
+                  {item.label}
+                </NavLink>
+              )}
+            </div>
           ))}
         </nav>
 

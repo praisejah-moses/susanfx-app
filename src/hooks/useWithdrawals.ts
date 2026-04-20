@@ -6,7 +6,10 @@ export interface UseWithdrawals {
   withdrawals: WithdrawalRow[];
   loading: boolean;
   error: string | null;
-  submit: (amount: number, method: WithdrawalRow["method"]) => Promise<string | null>;
+  submit: (
+    amount: number,
+    method: WithdrawalRow["method"],
+  ) => Promise<string | null>;
 }
 
 export function useWithdrawals(userId: string | undefined): UseWithdrawals {
@@ -15,7 +18,10 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
   const [error, setError] = useState<string | null>(null);
 
   const fetchWithdrawals = useCallback(async () => {
-    if (!userId) { setLoading(false); return; }
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from("withdrawals")
@@ -27,7 +33,9 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
     setLoading(false);
   }, [userId]);
 
-  useEffect(() => { fetchWithdrawals(); }, [fetchWithdrawals]);
+  useEffect(() => {
+    fetchWithdrawals();
+  }, [fetchWithdrawals]);
 
   /** Returns null on success, or an error string. */
   const submit = useCallback(

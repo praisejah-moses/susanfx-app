@@ -21,20 +21,19 @@ export default function DashboardPage() {
   const { account } = useAccount(user?.id);
 
   const userName =
-    user?.user_metadata?.first_name ||
-    user?.email?.split("@")[0] ||
-    "Trader";
+    user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
 
   // Derived account metrics
-  const balance      = account?.balance          ?? 0;
+  const balance = account?.balance ?? 0;
   const startBalance = account?.starting_balance ?? 0;
-  const profit       = balance - startBalance;
-  const profitPct    = startBalance > 0 ? (profit / startBalance) * 100 : 0;
-  const profitTarget = account?.profit_target     ?? 10000;
-  const targetPct    = startBalance > 0 ? Math.min((profit / profitTarget) * 100, 100) : 0;
-  const dailyDD      = account?.daily_drawdown    ?? 0;
-  const maxDD        = account?.max_drawdown      ?? 0;
-  const phase        = account?.phase             ?? "Phase 1";
+  const profit = balance - startBalance;
+  const profitPct = startBalance > 0 ? (profit / startBalance) * 100 : 0;
+  const profitTarget = account?.profit_target ?? 10000;
+  const targetPct =
+    startBalance > 0 ? Math.min((profit / profitTarget) * 100, 100) : 0;
+  const dailyDD = account?.daily_drawdown ?? 0;
+  const maxDD = account?.max_drawdown ?? 0;
+  const phase = account?.phase ?? "Phase 1";
 
   // Recent trades: 5 most recent
   const recentTrades = trades.slice(0, 5);
@@ -252,55 +251,73 @@ export default function DashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-(--border-normal)">
                   {tradesLoading ? (
-                    <tr><td colSpan={7} className="px-6 py-8 text-center text-xs text-(--text-white-50)">Loading trades…</td></tr>
-                  ) : recentTrades.length === 0 ? (
-                    <tr><td colSpan={7} className="px-6 py-8 text-center text-xs text-(--text-white-50)">No trades yet</td></tr>
-                  ) : recentTrades.map((trade) => (
-                    <tr
-                      key={trade.id}
-                      className="hover:bg-white/2 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium">{trade.pair}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                            trade.type === "Buy"
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "bg-red-500/10 text-red-400"
-                          }`}
-                        >
-                          {trade.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-(--text-white-50)">
-                        {trade.size}
-                      </td>
-                      <td className="px-6 py-4 text-(--text-white-50)">
-                        {trade.open_price}
-                      </td>
-                      <td className="px-6 py-4 text-(--text-white-50)">
-                        {trade.close_price ?? "—"}
-                      </td>
+                    <tr>
                       <td
-                        className={`px-6 py-4 font-medium ${
-                          (trade.pnl ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"
-                        }`}
+                        colSpan={7}
+                        className="px-6 py-8 text-center text-xs text-(--text-white-50)"
                       >
-                        {trade.pnl != null ? fmt(trade.pnl) : "—"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                            trade.status === "Open"
-                              ? "bg-(--primary-default)/10 text-(--primary-default)"
-                              : "bg-white/5 text-(--text-white-50)"
-                          }`}
-                        >
-                          {trade.status}
-                        </span>
+                        Loading trades…
                       </td>
                     </tr>
-                  ))}
+                  ) : recentTrades.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-8 text-center text-xs text-(--text-white-50)"
+                      >
+                        No trades yet
+                      </td>
+                    </tr>
+                  ) : (
+                    recentTrades.map((trade) => (
+                      <tr
+                        key={trade.id}
+                        className="hover:bg-white/2 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium">{trade.pair}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                              trade.type === "Buy"
+                                ? "bg-emerald-500/10 text-emerald-400"
+                                : "bg-red-500/10 text-red-400"
+                            }`}
+                          >
+                            {trade.type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-(--text-white-50)">
+                          {trade.size}
+                        </td>
+                        <td className="px-6 py-4 text-(--text-white-50)">
+                          {trade.open_price}
+                        </td>
+                        <td className="px-6 py-4 text-(--text-white-50)">
+                          {trade.close_price ?? "—"}
+                        </td>
+                        <td
+                          className={`px-6 py-4 font-medium ${
+                            (trade.pnl ?? 0) >= 0
+                              ? "text-emerald-400"
+                              : "text-red-400"
+                          }`}
+                        >
+                          {trade.pnl != null ? fmt(trade.pnl) : "—"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                              trade.status === "Open"
+                                ? "bg-(--primary-default)/10 text-(--primary-default)"
+                                : "bg-white/5 text-(--text-white-50)"
+                            }`}
+                          >
+                            {trade.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

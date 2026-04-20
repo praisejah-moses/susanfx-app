@@ -4,6 +4,7 @@ import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import DashboardTradingPage from "./pages/DashboardTradingPage";
 import WithdrawalsPage from "./pages/WithdrawalsPage";
+import DepositsPage from "./pages/DepositsPage";
 import RewardsPage from "./pages/RewardsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -54,6 +55,14 @@ function App() {
         element={
           <ProtectedRoute>
             <WithdrawalsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/deposits"
+        element={
+          <ProtectedRoute>
+            <DepositsPage />
           </ProtectedRoute>
         }
       />

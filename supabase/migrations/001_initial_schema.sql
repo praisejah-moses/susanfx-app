@@ -130,8 +130,8 @@ create policy "Users can view own user_rewards"
 create or replace view public.leaderboard as
 select
   a.user_id,
-  (raw.user_metadata->>'first_name')::text as first_name,
-  (raw.user_metadata->>'last_name')::text  as last_name,
+  (raw.raw_user_meta_data->>'first_name')::text as first_name,
+  (raw.raw_user_meta_data->>'last_name')::text  as last_name,
   round(
     ((a.balance - a.starting_balance) / nullif(a.starting_balance, 0)) * 100,
     2

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../utils/supabase";
 import type { AccountRow } from "../types/database";
 
@@ -6,6 +6,7 @@ export interface UseAccount {
   account: AccountRow | null;
   loading: boolean;
   error: string | null;
+  updateBalance: (newBalance: number) => Promise<string | null>;
 }
 
 export function useAccount(userId: string | undefined): UseAccount {
@@ -14,7 +15,10 @@ export function useAccount(userId: string | undefined): UseAccount {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     supabase
       .from("accounts")
       .select("*")
@@ -27,5 +31,19 @@ export function useAccount(userId: string | undefined): UseAccount {
       });
   }, [userId]);
 
-  return { account, loading, error };
+  const updateBalance = useCallback(
+    async (newBalance: number): Promise<string | null> => {
+      if (!userId) return "Not authenticated";
+      const { error } = await supabase
+        .from("accounts")
+        .update({ balance: newBalance })
+        .eq("user_id", userId);
+      if (error) return error.message;
+      setAccount((prev) => (prev ? { ...prev, balance: newBalance } : prev));
+      return null;
+    },
+    [userId],
+  );
+
+  return { account, loading, error, updateBalance };
 }

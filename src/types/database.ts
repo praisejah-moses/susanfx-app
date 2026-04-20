@@ -11,6 +11,8 @@ export interface TradeRow {
   close_price: number | null;
   pnl: number | null;
   status: "Open" | "Closed";
+  sl: number | null;
+  tp: number | null;
   opened_at: string;
   closed_at: string | null;
 }

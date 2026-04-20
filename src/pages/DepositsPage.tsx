@@ -1,9 +1,7 @@
 import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import { useAuth } from "../context/AuthContext";
-import { useWithdrawals } from "../hooks/useWithdrawals";
 import { useAccount } from "../hooks/useAccount";
-import type { WithdrawalRow } from "../types/database";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -20,17 +18,16 @@ function fmtDate(iso: string) {
   });
 }
 
-export default function WithdrawalsPage() {
+export default function DepositsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
   const userName =
     user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
 
-  const { withdrawals, loading, submit } = useWithdrawals(user?.id);
   const { account } = useAccount(user?.id);
 
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<WithdrawalRow["method"] | "">("");
+  const [method, setMethod] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState(false);
@@ -45,27 +42,19 @@ export default function WithdrawalsPage() {
       return;
     }
     if (!method) {
-      setFormError("Select a withdrawal method.");
+      setFormError("Select a deposit method.");
       return;
     }
     setSubmitting(true);
-    const err = await submit(parsed, method as WithdrawalRow["method"]);
-    setSubmitting(false);
-    if (err) {
-      setFormError(err);
-      return;
-    }
-    setFormSuccess(true);
-    setAmount("");
-    setMethod("");
+    // TODO: Implement deposit submission
+    setTimeout(() => {
+      setSubmitting(false);
+      setFormSuccess(true);
+      setAmount("");
+      setMethod("");
+    }, 500);
   }
 
-  const totalWithdrawn = withdrawals
-    .filter((w) => w.status === "Completed")
-    .reduce((s, w) => s + w.amount, 0);
-  const pending = withdrawals
-    .filter((w) => w.status === "Pending")
-    .reduce((s, w) => s + w.amount, 0);
   const available = account?.balance ?? 0;
 
   return (
@@ -88,31 +77,30 @@ export default function WithdrawalsPage() {
             <span className="block w-5 h-0.5 bg-white" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Withdrawals</h1>
+            <h1 className="text-base md:text-lg font-semibold">Deposits</h1>
             <p className="text-xs text-(--text-white-50) hidden sm:block">
               Welcome back, {userName}
             </p>
           </div>
           <button className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium bg-(--primary-default) text-(--primary-text) hover:opacity-90 transition-opacity whitespace-nowrap">
-            Request Payout
+            Make a Deposit
           </button>
         </header>
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp">
           {/* Summary cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               {
-                label: "Total Withdrawn",
-                value: fmt(totalWithdrawn),
-                sub: "All time",
-              },
-              {
-                label: "Available to Withdraw",
+                label: "Account Balance",
                 value: fmt(available),
                 sub: "Current balance",
               },
-              { label: "Pending", value: fmt(pending), sub: "Processing" },
+              {
+                label: "Total Deposits",
+                value: fmt(available),
+                sub: "All time",
+              },
             ].map((card) => (
               <div
                 key={card.label}
@@ -131,13 +119,13 @@ export default function WithdrawalsPage() {
             ))}
           </div>
 
-          {/* Request payout form */}
+          {/* Make deposit form */}
           <form
             onSubmit={handleSubmit}
             className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4"
           >
             <h2 className="text-sm font-semibold text-(--global-text)">
-              New Withdrawal Request
+              Make a Deposit
             </h2>
             {formError && (
               <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
@@ -146,7 +134,7 @@ export default function WithdrawalsPage() {
             )}
             {formSuccess && (
               <p className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
-                Request submitted successfully.
+                Deposit initiated successfully.
               </p>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -166,19 +154,18 @@ export default function WithdrawalsPage() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-(--text-white-50)">
-                  Withdrawal Method
+                  Deposit Method
                 </label>
                 <select
                   value={method}
-                  onChange={(e) =>
-                    setMethod(e.target.value as WithdrawalRow["method"])
-                  }
+                  onChange={(e) => setMethod(e.target.value)}
                   className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) outline-none focus:border-(--primary-default) transition-colors"
                 >
                   <option value="">Select method</option>
                   <option value="Bank Transfer">Bank Transfer</option>
                   <option value="Crypto (USDT)">Crypto (USDT)</option>
                   <option value="PayPal">PayPal</option>
+                  <option value="Credit Card">Credit Card</option>
                 </select>
               </div>
             </div>
@@ -187,7 +174,7 @@ export default function WithdrawalsPage() {
               disabled={submitting}
               className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-(--primary-default) text-(--primary-text) hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? "Submitting…" : "Submit Request"}
+              {submitting ? "Processing…" : "Deposit Now"}
             </button>
           </form>
 
@@ -195,7 +182,7 @@ export default function WithdrawalsPage() {
           <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-(--border-normal)">
               <h2 className="text-sm font-semibold text-(--global-text)">
-                Withdrawal History
+                Deposit History
               </h2>
             </div>
             <div className="overflow-x-auto">
@@ -210,55 +197,14 @@ export default function WithdrawalsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-(--border-normal)">
-                  {loading ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="px-5 py-8 text-center text-(--text-white-50)"
-                      >
-                        Loading…
-                      </td>
-                    </tr>
-                  ) : withdrawals.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="px-5 py-8 text-center text-(--text-white-50)"
-                      >
-                        No withdrawals yet
-                      </td>
-                    </tr>
-                  ) : (
-                    withdrawals.map((w) => (
-                      <tr
-                        key={w.id}
-                        className="hover:bg-white/2 transition-colors"
-                      >
-                        <td className="px-5 py-3 font-semibold">
-                          {fmt(w.amount)}
-                        </td>
-                        <td className="px-5 py-3 text-(--text-white-50)">
-                          {w.method}
-                        </td>
-                        <td className="px-5 py-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                              w.status === "Completed"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : w.status === "Rejected"
-                                  ? "bg-red-500/10 text-red-400"
-                                  : "bg-yellow-500/10 text-yellow-400"
-                            }`}
-                          >
-                            {w.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3 text-(--text-white-50)">
-                          {fmtDate(w.created_at)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-5 py-8 text-center text-(--text-white-50)"
+                    >
+                      No deposits yet
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

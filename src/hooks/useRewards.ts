@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
-import type { RewardRow, UserRewardRow, LeaderboardRow } from "../types/database";
+import type {
+  RewardRow,
+  UserRewardRow,
+  LeaderboardRow,
+} from "../types/database";
 
 export interface EnrichedReward extends RewardRow {
   earned: boolean;
@@ -22,19 +26,41 @@ export function useRewards(userId: string | undefined): UseRewards {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
     Promise.all([
       supabase.from("rewards").select("*").order("points", { ascending: true }),
       supabase.from("user_rewards").select("*").eq("user_id", userId),
-      supabase.from("leaderboard").select("*").order("profit_pct", { ascending: false }).limit(10),
+      supabase
+        .from("leaderboard")
+        .select("*")
+        .order("profit_pct", { ascending: false })
+        .limit(10),
     ]).then(([rewardsRes, userRewardsRes, leaderRes]) => {
-      if (rewardsRes.error) { setError(rewardsRes.error.message); setLoading(false); return; }
-      if (userRewardsRes.error) { setError(userRewardsRes.error.message); setLoading(false); return; }
-      if (leaderRes.error) { setError(leaderRes.error.message); setLoading(false); return; }
+      if (rewardsRes.error) {
+        setError(rewardsRes.error.message);
+        setLoading(false);
+        return;
+      }
+      if (userRewardsRes.error) {
+        setError(userRewardsRes.error.message);
+        setLoading(false);
+        return;
+      }
+      if (leaderRes.error) {
+        setError(leaderRes.error.message);
+        setLoading(false);
+        return;
+      }
 
       const earned = new Map<string, string>(
-        (userRewardsRes.data as UserRewardRow[]).map((r) => [r.reward_id, r.earned_at]),
+        (userRewardsRes.data as UserRewardRow[]).map((r) => [
+          r.reward_id,
+          r.earned_at,
+        ]),
       );
 
       setRewards(
@@ -49,7 +75,9 @@ export function useRewards(userId: string | undefined): UseRewards {
     });
   }, [userId]);
 
-  const earnedPoints = rewards.filter((r) => r.earned).reduce((s, r) => s + r.points, 0);
+  const earnedPoints = rewards
+    .filter((r) => r.earned)
+    .reduce((s, r) => s + r.points, 0);
 
   return { rewards, leaderboard, earnedPoints, loading, error };
 }

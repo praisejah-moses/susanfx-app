@@ -5,15 +5,22 @@ import type { NotificationPrefsRow } from "../types/database";
 export interface UseNotificationPrefs {
   prefs: NotificationPrefsRow | null;
   loading: boolean;
-  save: (prefs: Omit<NotificationPrefsRow, "user_id">) => Promise<string | null>;
+  save: (
+    prefs: Omit<NotificationPrefsRow, "user_id">,
+  ) => Promise<string | null>;
 }
 
-export function useNotificationPrefs(userId: string | undefined): UseNotificationPrefs {
+export function useNotificationPrefs(
+  userId: string | undefined,
+): UseNotificationPrefs {
   const [prefs, setPrefs] = useState<NotificationPrefsRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     supabase
       .from("notification_prefs")
       .select("*")
