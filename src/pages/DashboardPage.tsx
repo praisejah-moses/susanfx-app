@@ -53,18 +53,6 @@ export default function DashboardPage() {
           subtitle={`Welcome back, ${userName}`}
           onSidebarToggle={setSidebarOpen}
           balance={balance}
-          actions={
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {phase} Active
-              </span>
-              <span className="sm:hidden w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <button className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium bg-(--primary-default) text-black hover:opacity-90 transition-opacity whitespace-nowrap">
-                Request Payout
-              </button>
-            </div>
-          }
         />
 
         {/* Page body */}
