@@ -34,7 +34,6 @@ export default function DashboardPage() {
     startBalance > 0 ? Math.min((profit / profitTarget) * 100, 100) : 0;
   const dailyDD = account?.daily_drawdown ?? 0;
   const maxDD = account?.max_drawdown ?? 0;
-  const phase = account?.phase ?? "Phase 1";
 
   // Recent trades: 5 most recent
   const recentTrades = trades.slice(0, 5);
