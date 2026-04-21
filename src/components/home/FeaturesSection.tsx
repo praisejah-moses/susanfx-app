@@ -66,7 +66,7 @@ export default function FeaturesSection() {
             Simulated Capital with Real Rewards. Paid Fast &amp; Secure.
           </p>
           <div className="flex flex-wrap gap-3 items-center justify-center mt-6">
-            <Button as="a" href="/login" variant="featured" className="gap-2">
+            <Button as="a" href="/auth" variant="featured" className="gap-2">
               Get Funded
               <IconMask
                 url={ARROW_ICON}
@@ -131,7 +131,7 @@ export default function FeaturesSection() {
           <div className="flex flex-col items-center gap-3">
             <Button
               as="a"
-              href="/login"
+              href="/auth"
               variant="featured"
               className="text-base px-8 py-3 gap-2"
             >

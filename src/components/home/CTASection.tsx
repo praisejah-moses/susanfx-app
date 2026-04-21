@@ -32,9 +32,9 @@ export default function CTASection() {
             <h3 className="text-2xl md:text-3xl font-bold text-black">
               Level up. Join our Community.
             </h3>
-            <Button
+            {/* <Button
               as="a"
-              href="#"
+              href="/au"
               variant="featured"
               className="self-start gap-2"
             >
@@ -44,7 +44,7 @@ export default function CTASection() {
                 size="0.9rem"
                 color="var(--primary-text)"
               />
-            </Button>
+            </Button> */}
           </div>
 
           {/* Email CTA */}

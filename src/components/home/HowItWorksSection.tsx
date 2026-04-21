@@ -75,7 +75,7 @@ export default function HowItWorksSection() {
         <div className="flex flex-col items-center gap-3">
           <Button
             as="a"
-            href="/login"
+            href="/auth"
             variant="featured"
             className="text-base px-8 py-3"
           >
