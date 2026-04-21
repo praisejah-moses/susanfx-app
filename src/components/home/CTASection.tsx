@@ -1,8 +1,4 @@
 import { useState } from "react";
-import Button from "../ui/Button";
-import IconMask from "../ui/IconMask";
-
-const ARROW_ICON = "/images/index/692fa452ca73ac3398155143_arrow-right.webp";
 
 type FormStatus = "idle" | "success" | "error";
 

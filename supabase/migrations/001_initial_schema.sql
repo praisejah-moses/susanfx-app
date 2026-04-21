@@ -12,8 +12,8 @@ create extension if not exists "pgcrypto";
 create table if not exists public.accounts (
   id               uuid primary key default gen_random_uuid(),
   user_id          uuid not null references auth.users(id) on delete cascade,
-  balance          numeric(18, 2) not null default 100000,
-  starting_balance numeric(18, 2) not null default 100000,
+  balance          numeric(18, 2) not null default 0,
+  starting_balance numeric(18, 2) not null default 0,
   phase            text            not null default 'Phase 1',
   daily_drawdown   numeric(6, 2)   not null default 0,
   max_drawdown     numeric(6, 2)   not null default 0,
