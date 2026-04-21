@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import { useAuth } from "../context/AuthContext";
 import { useTrades } from "../hooks/useTrades";
+import { useAccount } from "../hooks/useAccount";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -18,6 +20,7 @@ export default function AnalyticsPage() {
     user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
 
   const { trades, loading } = useTrades(user?.id);
+  const { account } = useAccount(user?.id);
 
   const closed = useMemo(
     () => trades.filter((t) => t.status === "Closed" && t.pnl != null),
@@ -116,28 +119,12 @@ export default function AnalyticsPage() {
       />
 
       <div className="md:ml-60 flex flex-col min-h-screen">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Analytics</h1>
-            <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Welcome back, {userName}
-            </p>
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            {closed.length} Trades
-          </span>
-        </header>
+        <DashboardTopBar
+          title="Analytics"
+          subtitle={`Welcome back, ${userName}`}
+          onSidebarToggle={setSidebarOpen}
+          balance={account?.balance ?? 0}
+        />
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp">
           {loading ? (

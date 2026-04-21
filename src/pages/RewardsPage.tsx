@@ -1,7 +1,9 @@
 import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import { useAuth } from "../context/AuthContext";
 import { useRewards } from "../hooks/useRewards";
+import { useAccount } from "../hooks/useAccount";
 
 export default function RewardsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,6 +12,7 @@ export default function RewardsPage() {
     user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
 
   const { rewards, leaderboard, earnedPoints, loading } = useRewards(user?.id);
+  const { account } = useAccount(user?.id);
 
   return (
     <div className="min-h-screen bg-(--background-default) text-(--global-text)">
@@ -19,29 +22,17 @@ export default function RewardsPage() {
       />
 
       <div className="md:ml-60 flex flex-col min-h-screen">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Rewards</h1>
-            <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Welcome back, {userName}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+        <DashboardTopBar
+          title="Rewards"
+          subtitle={`Welcome back, ${userName}`}
+          onSidebarToggle={setSidebarOpen}
+          balance={account?.balance ?? 0}
+          actions={
             <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-(--primary-default)/10 text-(--primary-default) border border-(--primary-default)/20 font-medium">
               ⭐ {earnedPoints.toLocaleString()} pts
             </span>
-          </div>
-        </header>
+          }
+        />
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp">
           {/* Badges / Achievements */}

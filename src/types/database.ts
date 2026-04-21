@@ -17,12 +17,32 @@ export interface TradeRow {
   closed_at: string | null;
 }
 
+export interface DepositRow {
+  id: string;
+  user_id: string;
+  amount: number;
+  method: "BTC" | "USDT (ERC20)" | "ETH" | "SOL";
+  status: "Pending" | "Completed" | "Rejected";
+  tx_hash: string | null;
+  wallet_address: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
 export interface WithdrawalRow {
   id: string;
   user_id: string;
   amount: number;
-  method: "Bank Transfer" | "Crypto (USDT)" | "PayPal";
+  method:
+    | "Bank Transfer"
+    | "Crypto (USDT)"
+    | "PayPal"
+    | "Bitcoin"
+    | "USDT (ERC20)"
+    | "Ethereum"
+    | "Solana";
   status: "Pending" | "Completed" | "Rejected";
+  wallet_address: string | null;
   created_at: string;
 }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import FxChart from "../components/dashboard/FxChart";
 import { useAuth } from "../context/AuthContext";
 import { useTrades } from "../hooks/useTrades";
@@ -326,54 +327,43 @@ export default function DashboardTradingPage() {
       />
 
       <div className="md:ml-60 flex flex-col min-h-screen">
-        {/* ── Top bar ────────────────────────────────────────────────── */}
-        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-6 py-3 flex items-center justify-between gap-3">
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Trading</h1>
-            <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Live FX Simulation
-            </p>
-          </div>
-          {/* Balance / Equity strip */}
-          <div className="hidden sm:flex items-center gap-4 text-xs mr-2">
-            <div className="text-right">
-              <p className="text-(--text-white-50)">Balance</p>
-              <p className="font-semibold text-(--global-text)">
-                {fmt(balance)}
-              </p>
+        <DashboardTopBar
+          title="Trading"
+          subtitle="Live FX Simulation"
+          onSidebarToggle={setSidebarOpen}
+          balance={balance}
+          actions={
+            <div className="hidden sm:flex items-center gap-3 text-xs">
+              <div className="text-right">
+                <p className="text-(--text-white-50)">Balance</p>
+                <p className="font-semibold text-(--global-text)">
+                  {fmt(balance)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-(--text-white-50)">Equity</p>
+                <p
+                  className={`font-semibold ${equity >= balance ? "text-emerald-400" : "text-red-400"}`}
+                >
+                  {fmt(equity)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-(--text-white-50)">P&L</p>
+                <p
+                  className={`font-semibold ${totalUnrealizedPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                >
+                  {totalUnrealizedPnl >= 0 ? "+" : ""}
+                  {fmt(totalUnrealizedPnl)}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Sim
+              </span>
             </div>
-            <div className="text-right">
-              <p className="text-(--text-white-50)">Equity</p>
-              <p
-                className={`font-semibold ${equity >= balance ? "text-emerald-400" : "text-red-400"}`}
-              >
-                {fmt(equity)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-(--text-white-50)">Unrealized P&L</p>
-              <p
-                className={`font-semibold ${totalUnrealizedPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}
-              >
-                {totalUnrealizedPnl >= 0 ? "+" : ""}
-                {fmt(totalUnrealizedPnl)}
-              </p>
-            </div>
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Live Sim
-          </span>
-        </header>
+          }
+        />
 
         {/* ── Main layout ────────────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
@@ -469,7 +459,11 @@ export default function DashboardTradingPage() {
                         ].map((h) => (
                           <th
                             key={h}
-                            className="text-left px-4 py-2 font-medium"
+                            className={`text-left px-4 py-2 font-medium ${
+                              ["Open", "Current", "SL", "TP"].includes(h)
+                                ? "hidden md:table-cell"
+                                : ""
+                            }`}
                           >
                             {h}
                           </th>
@@ -515,16 +509,16 @@ export default function DashboardTradingPage() {
                               <td className="px-4 py-2.5 text-(--text-white-50)">
                                 {p.size.toFixed(2)}
                               </td>
-                              <td className="px-4 py-2.5 text-(--text-white-50) font-mono">
+                              <td className="hidden md:table-cell px-4 py-2.5 text-(--text-white-50) font-mono">
                                 {fmtPrice(p.pair, p.open_price)}
                               </td>
-                              <td className="px-4 py-2.5 font-mono">
+                              <td className="hidden md:table-cell px-4 py-2.5 font-mono">
                                 {fmtPrice(p.pair, cur)}
                               </td>
-                              <td className="px-4 py-2.5 text-red-400">
+                              <td className="hidden md:table-cell px-4 py-2.5 text-red-400">
                                 {p.sl ? fmtPrice(p.pair, p.sl) : "—"}
                               </td>
-                              <td className="px-4 py-2.5 text-emerald-400">
+                              <td className="hidden md:table-cell px-4 py-2.5 text-emerald-400">
                                 {p.tp ? fmtPrice(p.pair, p.tp) : "—"}
                               </td>
                               <td

@@ -9,6 +9,7 @@ export interface UseWithdrawals {
   submit: (
     amount: number,
     method: WithdrawalRow["method"],
+    walletAddress?: string | null,
   ) => Promise<string | null>;
 }
 
@@ -39,13 +40,18 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
 
   /** Returns null on success, or an error string. */
   const submit = useCallback(
-    async (amount: number, method: WithdrawalRow["method"]) => {
+    async (
+      amount: number,
+      method: WithdrawalRow["method"],
+      walletAddress?: string | null,
+    ) => {
       if (!userId) return "Not authenticated";
       const { error } = await supabase.from("withdrawals").insert({
         user_id: userId,
         amount,
         method,
         status: "Pending",
+        wallet_address: walletAddress || null,
       });
       if (error) return error.message;
       await fetchWithdrawals();

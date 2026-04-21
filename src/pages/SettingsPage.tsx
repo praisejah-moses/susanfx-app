@@ -1,7 +1,9 @@
 import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import { useAuth } from "../context/AuthContext";
 import { useNotificationPrefs } from "../hooks/useNotificationPrefs";
+import { useAccount } from "../hooks/useAccount";
 import { supabase } from "../utils/supabase";
 
 export default function SettingsPage() {
@@ -10,6 +12,8 @@ export default function SettingsPage() {
 
   const userName =
     user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
+
+  const { account } = useAccount(user?.id);
 
   const {
     prefs,
@@ -110,24 +114,12 @@ export default function SettingsPage() {
       />
 
       <div className="md:ml-60 flex flex-col min-h-screen">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Settings</h1>
-            <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Welcome back, {userName}
-            </p>
-          </div>
-        </header>
+        <DashboardTopBar
+          title="Settings"
+          subtitle={`Welcome back, ${userName}`}
+          onSidebarToggle={setSidebarOpen}
+          balance={account?.balance ?? 0}
+        />
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp max-w-2xl">
           {/* Profile */}

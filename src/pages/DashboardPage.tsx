@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import StatCard from "../components/dashboard/StatCard";
 import { useAuth } from "../context/AuthContext";
 import { useTrades } from "../hooks/useTrades";
@@ -47,36 +48,24 @@ export default function DashboardPage() {
 
       {/* Main content */}
       <div className="md:ml-60 flex flex-col min-h-screen">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-(--background-default)/95 backdrop-blur border-b border-(--border-normal) px-4 md:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
-          {/* Hamburger (mobile only) */}
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-1 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base md:text-lg font-semibold">Overview</h1>
-            <p className="text-xs text-(--text-white-50) hidden sm:block">
-              Welcome back, {userName}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 md:gap-3 shrink-0">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {phase} Active
-            </span>
-            {/* Mobile phase badge (icon only) */}
-            <span className="sm:hidden w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <button className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium bg-(--primary-default) text-black hover:opacity-90 transition-opacity whitespace-nowrap">
-              Request Payout
-            </button>
-          </div>
-        </header>
+        <DashboardTopBar
+          title="Overview"
+          subtitle={`Welcome back, ${userName}`}
+          onSidebarToggle={setSidebarOpen}
+          balance={balance}
+          actions={
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {phase} Active
+              </span>
+              <span className="sm:hidden w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <button className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium bg-(--primary-default) text-black hover:opacity-90 transition-opacity whitespace-nowrap">
+                Request Payout
+              </button>
+            </div>
+          }
+        />
 
         {/* Page body */}
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-5 md:space-y-8">
