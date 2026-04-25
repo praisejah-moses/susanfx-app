@@ -85,3 +85,21 @@ export interface NotificationPrefsRow {
   trade_alerts: boolean;
   payout_alerts: boolean;
 }
+
+export interface ReferralRow {
+  id: string;
+  referrer_id: string;
+  referee_id: string;
+  referral_code: string;
+  bonus_awarded: boolean;
+  bonus_amount: number;
+  created_at: string;
+  awarded_at: string | null;
+}
+
+export interface UserReferralCodeRow {
+  id: string;
+  user_id: string;
+  referral_code: string;
+  created_at: string;
+}

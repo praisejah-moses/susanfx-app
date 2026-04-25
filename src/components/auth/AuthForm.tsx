@@ -51,6 +51,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [lastName, setLastName] = useState("");
   const [country, setCountry] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [refererCode, setRefererCode] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [signupConfirmationEmail, setSignupConfirmationEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +85,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           setLoading(false);
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -94,12 +95,35 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               last_name: lastName,
               country: country,
               phone_number: phoneNumber,
+              referral_code: refererCode || null,
             },
           },
         });
         if (error) {
           setError(error.message);
         } else {
+          // Process referral if code was provided and matches the static code
+          if (refererCode && data.user) {
+            if (refererCode.toUpperCase() === 'MYREFERALCODE') {
+              try {
+                // For demo purposes, we'll award the bonus directly
+                // In a real app, you'd have a proper referral system
+                const { error: updateError } = await supabase
+                  .from('accounts')
+                  .update({ balance: 100.00 })
+                  .eq('user_id', data.user.id);
+
+                if (updateError) {
+                  console.error('Bonus award error:', updateError);
+                }
+              } catch (referralErr) {
+                console.error('Referral processing failed:', referralErr);
+              }
+            } else {
+              console.log('Invalid referral code provided');
+            }
+          }
+
           setError(null);
           setSignupConfirmationEmail(email);
         }
@@ -161,6 +185,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               setLastName("");
               setCountry("");
               setPhoneNumber("");
+              setRefererCode("");
               setAgreedToTerms(false);
               setError(null);
             }}
@@ -401,6 +426,26 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
             </button>
           </div>
         </div>
+
+        {/* Referer Code (Signup only) */}
+        {mode === "signup" && (
+          <div className="w-full flex flex-col gap-2">
+            <p className="text-sm font-medium text-[var(--global-text)]">
+              Referral Code <span className="text-[var(--text-white-50)] text-xs">(Optional)</span>
+            </p>
+            <div className="relative w-full">
+              <input
+                id="refererCode"
+                type="text"
+                name="refererCode"
+                placeholder="Enter MYREFERALCODE to get $100 bonus"
+                value={refererCode}
+                onChange={(e) => setRefererCode(e.target.value.toUpperCase())}
+                className="w-full border border-[var(--strokes-default)] rounded-lg px-3 py-[10px] outline-none focus:border-[var(--primary-default)] bg-[var(--background-default)] text-[var(--global-text)] placeholder:text-[var(--text-white-50)] text-sm hover:bg-[var(--background-secondary)] transition-smooth-fast"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Confirm Password (Signup only) */}
         {mode === "signup" && (

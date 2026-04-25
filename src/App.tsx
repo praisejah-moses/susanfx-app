@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import DashboardTradingPage from "./pages/DashboardTradingPage";
@@ -8,6 +7,7 @@ import DepositsPage from "./pages/DepositsPage";
 import RewardsPage from "./pages/RewardsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
+import ReferralsPage from "./pages/ReferralsPage";
 import { useAuth } from "./context/AuthContext";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
         path="/auth"
         element={
@@ -71,6 +71,14 @@ function App() {
         element={
           <ProtectedRoute>
             <RewardsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/referrals"
+        element={
+          <ProtectedRoute>
+            <ReferralsPage />
           </ProtectedRoute>
         }
       />

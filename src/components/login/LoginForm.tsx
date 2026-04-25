@@ -7,7 +7,6 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [refererCode, setRefererCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -117,24 +116,6 @@ export default function LoginForm() {
                 </svg>
               )}
             </button>
-          </div>
-        </div>
-
-        {/* Referer Code (Optional) */}
-        <div className="w-full flex flex-col gap-2">
-          <p className="text-sm font-medium text-[var(--global-text)]">
-            Referer Code <span className="text-[var(--text-white-50)] text-xs">(Optional)</span>
-          </p>
-          <div className="relative w-full">
-            <input
-              id="refererCode"
-              type="text"
-              name="refererCode"
-              placeholder="Enter referral code (if you have one)"
-              value={refererCode}
-              onChange={(e) => setRefererCode(e.target.value)}
-              className="w-full border border-[var(--strokes-default)] rounded-lg px-3 py-[10px] outline-none focus:border-[var(--primary-default)] bg-[var(--background-default)] text-[var(--global-text)] placeholder:text-[var(--text-white-50)] text-sm hover:bg-[var(--background-secondary)]"
-            />
           </div>
         </div>
 
