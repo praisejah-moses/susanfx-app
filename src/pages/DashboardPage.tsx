@@ -160,7 +160,7 @@ export default function DashboardPage() {
           {/* Progress bars */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Profit target */}
-            <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 space-y-3">
+            <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Profit Target</span>
                 <span className="text-xs text-(--primary-default) font-semibold">
@@ -180,7 +180,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Trading days */}
-            <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 space-y-3">
+            <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
                   Minimum Trading Days
@@ -203,7 +203,7 @@ export default function DashboardPage() {
           </section>
 
           {/* Recent trades */}
-          <section className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
+          <section className="bg-(--background-card) border border-(--border-normal) rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-(--border-normal) flex items-center justify-between">
               <h2 className="text-sm font-semibold">Recent Trades</h2>
               <button className="text-xs text-(--primary-default) hover:opacity-80 transition-opacity font-medium">
@@ -300,7 +300,7 @@ export default function DashboardPage() {
           </section>
 
           {/* Rules checklist */}
-          <section className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-6">
+          <section className="bg-(--background-card) border border-(--border-normal) rounded-xl p-6">
             <h2 className="text-sm font-semibold mb-4">Account Rules</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[

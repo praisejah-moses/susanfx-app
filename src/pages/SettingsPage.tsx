@@ -123,7 +123,7 @@ export default function SettingsPage() {
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp max-w-2xl">
           {/* Profile */}
-          <section className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
+          <section className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
             <h2 className="text-sm font-semibold">Profile Information</h2>
             {profileMsg && (
               <p
@@ -310,7 +310,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Danger zone */}
-          <section className="bg-[#0f0f0f] border border-red-500/20 rounded-xl p-5 md:p-6 space-y-3">
+          <section className="bg-(--background-card) border border-red-500/20 rounded-xl p-5 md:p-6 space-y-3">
             <h2 className="text-sm font-semibold text-red-400">Danger Zone</h2>
             <p className="text-xs text-(--text-white-50)">
               Permanently close your account. This action cannot be undone.

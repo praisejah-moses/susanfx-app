@@ -27,10 +27,15 @@ export function useRewards(userId: string | undefined): UseRewards {
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRewards([]);
+      setLeaderboard([]);
+      setError(null);
       setLoading(false);
       return;
     }
 
+    setLoading(true);
     Promise.all([
       supabase.from("rewards").select("*").order("points", { ascending: true }),
       supabase.from("user_rewards").select("*").eq("user_id", userId),
@@ -42,16 +47,22 @@ export function useRewards(userId: string | undefined): UseRewards {
     ]).then(([rewardsRes, userRewardsRes, leaderRes]) => {
       if (rewardsRes.error) {
         setError(rewardsRes.error.message);
+        setRewards([]);
+        setLeaderboard([]);
         setLoading(false);
         return;
       }
       if (userRewardsRes.error) {
         setError(userRewardsRes.error.message);
+        setRewards([]);
+        setLeaderboard([]);
         setLoading(false);
         return;
       }
       if (leaderRes.error) {
         setError(leaderRes.error.message);
+        setRewards([]);
+        setLeaderboard([]);
         setLoading(false);
         return;
       }
@@ -71,6 +82,7 @@ export function useRewards(userId: string | undefined): UseRewards {
         })),
       );
       setLeaderboard(leaderRes.data as LeaderboardRow[]);
+      setError(null);
       setLoading(false);
     });
   }, [userId]);

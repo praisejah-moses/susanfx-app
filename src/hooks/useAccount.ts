@@ -16,17 +16,27 @@ export function useAccount(userId: string | undefined): UseAccount {
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAccount(null);
+      setError(null);
       setLoading(false);
       return;
     }
+
+    setLoading(true);
     supabase
       .from("accounts")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error) setError(error.message);
-        else setAccount(data);
+        if (error) {
+          setError(error.message);
+          setAccount(null);
+        } else {
+          setAccount(data);
+          setError(null);
+        }
         setLoading(false);
       });
   }, [userId]);

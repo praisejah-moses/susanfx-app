@@ -16,7 +16,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-[var(--primary-default)] text-[var(--primary-text)] hover:opacity-90 hover:scale-105 active:scale-95",
   white: "bg-white text-black hover:opacity-90 hover:scale-105 active:scale-95",
   "dark-gray":
-    "bg-[#1a1a1a] text-white border border-[var(--border-normal)] hover:opacity-90 hover:scale-105 active:scale-95",
+    "bg-(--foreground-default) text-white border border-[var(--border-normal)] hover:opacity-90 hover:scale-105 active:scale-95",
   login:
     "bg-[var(--background-secondary)] text-[var(--global-text)] border border-[var(--border-normal)] hover:opacity-90 hover:scale-105 active:scale-95",
 };

@@ -131,15 +131,26 @@ export default function FxChart({ symbol }: FxChartProps) {
 
     const lastCandle = data[data.length - 1];
     const firstCandle = data[0];
-    setCurrentPrice(lastCandle.close);
-    const diff = lastCandle.close - firstCandle.open;
-    setPriceChange({ value: diff, pct: (diff / firstCandle.open) * 100 });
-    setOhlc({
+
+    // Calculate initial values synchronously
+    const initialPrice = lastCandle.close;
+    const initialDiff = lastCandle.close - firstCandle.open;
+    const initialPriceChange = {
+      value: initialDiff,
+      pct: (initialDiff / firstCandle.open) * 100,
+    };
+    const initialOhlc = {
       open: lastCandle.open,
       high: lastCandle.high,
       low: lastCandle.low,
       close: lastCandle.close,
-    });
+    };
+
+    // Set all state at once to avoid cascading renders
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentPrice(initialPrice);
+    setPriceChange(initialPriceChange);
+    setOhlc(initialOhlc);
 
     if (chartType === "candlestick") {
       const series = chart.addSeries(CandlestickSeries, {
@@ -229,7 +240,7 @@ export default function FxChart({ symbol }: FxChartProps) {
       : 5;
 
   return (
-    <div className="flex flex-col h-full bg-[#0f0f0f] rounded-xl border border-(--border-normal) overflow-hidden">
+    <div className="flex flex-col h-full bg-(--background-card) rounded-xl border border-(--border-normal) overflow-hidden">
       {/* ── Chart toolbar ─────────────────────────────────────────────── */}
       <div className="flex flex-col gap-1.5 px-3 sm:px-4 py-2 sm:py-3 border-b border-(--border-normal)">
         {/* Row 1: price + OHLC */}

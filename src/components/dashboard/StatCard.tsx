@@ -25,7 +25,7 @@ export default function StatCard({
   const trendIcon = trend === "up" ? "↑" : trend === "down" ? "↓" : "";
 
   return (
-    <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 flex flex-col gap-3">
+    <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-(--text-white-50) uppercase tracking-wider">
           {label}

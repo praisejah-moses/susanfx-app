@@ -153,7 +153,7 @@ export default function DepositsPage() {
             {/* Bank Wire, Credit Card, E-wallet */}
             <div
               onClick={() => setShowBankModal(true)}
-              className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-6 space-y-4 hover:border-(--primary-default)/50 transition-colors cursor-pointer"
+              className="bg-(--background-card) border border-(--border-normal) rounded-xl p-6 space-y-4 hover:border-(--primary-default)/50 transition-colors cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -199,7 +199,7 @@ export default function DepositsPage() {
             </div>
 
             {/* Cryptocurrencies Section */}
-            <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-6 space-y-4 hover:border-(--primary-default)/50 transition-colors">
+            <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-6 space-y-4 hover:border-(--primary-default)/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-semibold text-(--global-text) mb-2">
@@ -257,7 +257,7 @@ export default function DepositsPage() {
           </div>
 
           {/* Deposit History */}
-          <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
+          <div className="bg-(--background-card) border border-(--border-normal) rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-(--border-normal)">
               <h2 className="text-sm font-semibold text-(--global-text)">
                 Deposit History
@@ -341,7 +341,7 @@ export default function DepositsPage() {
 
             {/* Popout Modal */}
             <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
-              <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl max-w-md w-full space-y-4 animate-fadeInUp">
+              <div className="bg-(--background-card) border border-(--border-normal) rounded-xl max-w-md w-full space-y-4 animate-fadeInUp">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-(--border-normal) flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-(--global-text)">
@@ -461,7 +461,7 @@ export default function DepositsPage() {
 
             {/* Modal */}
             <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
-              <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl max-w-md w-full space-y-6 animate-fadeInUp">
+              <div className="bg-(--background-card) border border-(--border-normal) rounded-xl max-w-md w-full space-y-6 animate-fadeInUp">
                 {/* Success Icon */}
                 <div className="pt-6 flex justify-center">
                   <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -571,7 +571,7 @@ export default function DepositsPage() {
         {/* Bank Deposit Modal */}
         {showBankModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50 p-4 animate-fadeInUp">
-            <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl max-w-sm w-full p-6 space-y-4">
+            <div className="bg-(--background-card) border border-(--border-normal) rounded-xl max-w-sm w-full p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-(--global-text)">
                   Bank Deposit

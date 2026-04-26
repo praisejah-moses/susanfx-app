@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../utils/supabase";
-import type {
-  ReferralRow,
-} from "../types/database";
+import type { ReferralRow } from "../types/database";
 
 export interface UseReferral {
   referralCode: string | null;
@@ -20,8 +18,11 @@ export function useReferral(userId: string | undefined): UseReferral {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReferralData = async () => {
+  const fetchReferralData = useCallback(async () => {
     if (!userId) {
+      setReferralCode(null);
+      setReferrals([]);
+      setError(null);
       setLoading(false);
       return;
     }
@@ -37,7 +38,8 @@ export function useReferral(userId: string | undefined): UseReferral {
         .eq("user_id", userId)
         .single();
 
-      if (codeError && codeError.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (codeError && codeError.code !== "PGRST116") {
+        // PGRST116 is "not found"
         throw codeError;
       }
 
@@ -57,19 +59,23 @@ export function useReferral(userId: string | undefined): UseReferral {
       setReferrals(referralsData || []);
     } catch (err) {
       console.error("Error fetching referral data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load referral data");
+      setError(
+        err instanceof Error ? err.message : "Failed to load referral data",
+      );
+      setReferralCode(null);
+      setReferrals([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchReferralData();
-  }, [userId]);
+  }, [fetchReferralData]);
 
   const referralCount = referrals.length;
   const totalEarned = referrals
-    .filter(r => r.bonus_awarded)
+    .filter((r) => r.bonus_awarded)
     .reduce((sum, r) => sum + r.bonus_amount, 0);
 
   return {

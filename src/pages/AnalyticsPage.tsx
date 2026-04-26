@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
                 {stats.map((s) => (
                   <div
                     key={s.label}
-                    className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-4"
+                    className="bg-(--background-card) border border-(--border-normal) rounded-xl p-4"
                   >
                     <p className="text-xs text-(--text-white-50) mb-1">
                       {s.label}
@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
               </div>
 
               {/* Win / Loss progress bar */}
-              <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
+              <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
                 <h2 className="text-sm font-semibold">
                   Win / Loss Distribution
                 </h2>
@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
               </div>
 
               {/* Performance by pair */}
-              <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
+              <div className="bg-(--background-card) border border-(--border-normal) rounded-xl overflow-hidden">
                 <div className="px-5 py-4 border-b border-(--border-normal)">
                   <h2 className="text-sm font-semibold">
                     Performance by Instrument

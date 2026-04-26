@@ -295,6 +295,7 @@ export default function DashboardTradingPage() {
     setOrderSheetOpen(false);
   }, [lots, activeSymbol, orderType, currentPrice, sl, tp, balance, openTrade]);
 
+  /* eslint-disable react-hooks/preserve-manual-memoization */
   const handleCloseTrade = useCallback(
     async (tradeId: string) => {
       const trade = openPositions.find((t) => t.id === tradeId);
@@ -318,6 +319,7 @@ export default function DashboardTradingPage() {
     },
     [openPositions, closeTrade, balance, updateBalance],
   );
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   return (
     <div className="min-h-screen bg-(--background-default) text-(--global-text)">
@@ -368,7 +370,7 @@ export default function DashboardTradingPage() {
         {/* ── Main layout ────────────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
           {/* ── Symbol strip ───────────────────────────────────────── */}
-          <aside className="lg:w-44 shrink-0 border-b lg:border-b-0 lg:border-r border-(--border-normal) bg-[#0a0a0a]">
+          <aside className="lg:w-44 shrink-0 border-b lg:border-b-0 lg:border-r border-(--border-normal) bg-(--background-tertiary)">
             <div className="px-3 py-2 lg:py-3 border-b border-(--border-normal)">
               <p className="text-xs font-semibold text-(--text-white-50) uppercase tracking-wider">
                 Instruments
@@ -444,7 +446,7 @@ export default function DashboardTradingPage() {
               <div className="flex-1 overflow-auto">
                 {activeTab === "positions" && (
                   <table className="w-full text-xs min-w-160">
-                    <thead className="sticky top-0 bg-[#0a0a0a]">
+                    <thead className="sticky top-0 bg-(--background-tertiary)">
                       <tr className="text-(--text-white-50) uppercase tracking-wider border-b border-(--border-normal)">
                         {[
                           "Symbol",
@@ -546,7 +548,7 @@ export default function DashboardTradingPage() {
 
                 {activeTab === "history" && (
                   <table className="w-full text-xs min-w-140">
-                    <thead className="sticky top-0 bg-[#0a0a0a]">
+                    <thead className="sticky top-0 bg-(--background-tertiary)">
                       <tr className="text-(--text-white-50) uppercase tracking-wider border-b border-(--border-normal)">
                         {[
                           "Symbol",
@@ -684,7 +686,7 @@ export default function DashboardTradingPage() {
               fixed lg:static bottom-0 left-0 right-0 z-50
               lg:w-64 shrink-0
               flex flex-col
-              bg-[#0a0a0a]
+              bg-(--background-tertiary)
               border-t lg:border-t-0 lg:border-l border-(--border-normal)
               transition-transform duration-300 ease-in-out
               ${orderSheetOpen ? "translate-y-0" : "translate-y-full"}

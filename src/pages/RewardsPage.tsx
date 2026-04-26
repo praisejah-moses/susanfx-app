@@ -45,7 +45,7 @@ export default function RewardsPage() {
                 {rewards.map((reward) => (
                   <div
                     key={reward.id}
-                    className={`bg-[#0f0f0f] border rounded-xl p-5 flex items-start gap-4 transition-colors ${
+                    className={`bg-(--background-card) border rounded-xl p-5 flex items-start gap-4 transition-colors ${
                       reward.earned
                         ? "border-(--primary-default)/30"
                         : "border-(--border-normal) opacity-60"
@@ -81,7 +81,7 @@ export default function RewardsPage() {
           </div>
 
           {/* Leaderboard */}
-          <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
+          <div className="bg-(--background-card) border border-(--border-normal) rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-(--border-normal)">
               <h2 className="text-sm font-semibold">Top Traders This Month</h2>
             </div>

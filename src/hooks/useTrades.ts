@@ -26,25 +26,34 @@ export function useTrades(userId: string | undefined): UseTrades {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTrades = useCallback(async () => {
+  useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTrades([]);
+      setError(null);
       setLoading(false);
       return;
     }
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", userId)
-      .order("opened_at", { ascending: false });
-    if (error) setError(error.message);
-    else setTrades(data ?? []);
-    setLoading(false);
-  }, [userId]);
 
-  useEffect(() => {
-    fetchTrades();
-  }, [fetchTrades]);
+    const fetchTradesData = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("trades")
+        .select("*")
+        .eq("user_id", userId)
+        .order("opened_at", { ascending: false });
+      if (error) {
+        setError(error.message);
+        setTrades([]);
+      } else {
+        setTrades(data ?? []);
+        setError(null);
+      }
+      setLoading(false);
+    };
+
+    fetchTradesData();
+  }, [userId]);
 
   const openTrade = useCallback(
     async ({

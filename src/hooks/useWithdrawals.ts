@@ -18,25 +18,34 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWithdrawals = useCallback(async () => {
+  useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWithdrawals([]);
+      setError(null);
       setLoading(false);
       return;
     }
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("withdrawals")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    if (error) setError(error.message);
-    else setWithdrawals(data ?? []);
-    setLoading(false);
-  }, [userId]);
 
-  useEffect(() => {
-    fetchWithdrawals();
-  }, [fetchWithdrawals]);
+    const fetchWithdrawalsData = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("withdrawals")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) {
+        setError(error.message);
+        setWithdrawals([]);
+      } else {
+        setWithdrawals(data ?? []);
+        setError(null);
+      }
+      setLoading(false);
+    };
+
+    fetchWithdrawalsData();
+  }, [userId]);
 
   /** Returns null on success, or an error string. */
   const submit = useCallback(
@@ -54,10 +63,20 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
         wallet_address: walletAddress || null,
       });
       if (error) return error.message;
-      await fetchWithdrawals();
+
+      // Refresh withdrawals after successful submission
+      const { data, error: fetchError } = await supabase
+        .from("withdrawals")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      if (!fetchError && data) {
+        setWithdrawals(data);
+      }
+
       return null;
     },
-    [userId, fetchWithdrawals],
+    [userId],
   );
 
   return { withdrawals, loading, error, submit };

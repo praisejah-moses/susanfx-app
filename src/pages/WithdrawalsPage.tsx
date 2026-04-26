@@ -220,7 +220,7 @@ export default function WithdrawalsPage() {
             ].map((card) => (
               <div
                 key={card.label}
-                className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5"
+                className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5"
               >
                 <p className="text-xs text-(--text-white-50) mb-1">
                   {card.label}
@@ -236,7 +236,7 @@ export default function WithdrawalsPage() {
           </div>
 
           {/* Request payout form */}
-          <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
+          <div className="bg-(--background-card) border border-(--border-normal) rounded-xl p-5 md:p-6 space-y-4">
             <h2 className="text-sm font-semibold text-(--global-text)">
               Withdrawal Methods
             </h2>
@@ -310,7 +310,7 @@ export default function WithdrawalsPage() {
           </div>
 
           {/* History table */}
-          <div className="bg-[#0f0f0f] border border-(--border-normal) rounded-xl overflow-hidden">
+          <div className="bg-(--background-card) border border-(--border-normal) rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-(--border-normal)">
               <h2 className="text-sm font-semibold text-(--global-text)">
                 Withdrawal History
@@ -389,7 +389,7 @@ export default function WithdrawalsPage() {
         selectedCrypto &&
         selectedCrypto in WITHDRAWAL_METHODS && (
           <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4">
-            <div className="bg-[#1a1a1a] border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp">
+            <div className="bg-(--foreground-default) border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp">
               {(() => {
                 const crypto = WITHDRAWAL_METHODS[selectedCrypto];
                 return "address" in crypto ? (
@@ -540,7 +540,7 @@ export default function WithdrawalsPage() {
           onClick={() => setShowProcessingModal(false)}
         >
           <div
-            className="bg-[#1a1a1a] border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp"
+            className="bg-(--foreground-default) border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">

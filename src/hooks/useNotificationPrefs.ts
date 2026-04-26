@@ -18,9 +18,13 @@ export function useNotificationPrefs(
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPrefs(null);
       setLoading(false);
       return;
     }
+
+    setLoading(true);
     supabase
       .from("notification_prefs")
       .select("*")
