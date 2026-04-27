@@ -104,7 +104,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
         } else {
           // Process referral if code was provided and matches the static code
           if (refererCode && data.user) {
-            if (refererCode.toUpperCase() === 'MYREFERALCODE') {
+            if (refererCode.toUpperCase() === 'SUSANGETFUNDED') {
               try {
                 // For demo purposes, we'll award the bonus directly
                 // In a real app, you'd have a proper referral system
@@ -135,7 +135,9 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
 
   return (
     <div className="relative flex flex-col items-center w-full max-w-sm px-4 py-6 sm:px-6 sm:py-8 bg-[var(--background-default)] rounded-2xl sm:rounded-3xl border border-[var(--border-normal)] animate-scaleIn">
-      <Logo height={80} />
+      <div className="mb-4 sm:mb-6">
+        <Logo className="h-12 sm:h-20 w-auto" />
+      </div>
 
       {/* Signup Confirmation Message */}
       {signupConfirmationEmail && (
@@ -199,7 +201,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
       {/* Login/Signup Form */}
       {!signupConfirmationEmail && (
         <>
-          <h5 className="text-lg sm:text-xl font-semibold mt-6 sm:mt-8 text-[var(--global-text)]">
+          <h5 className="text-lg sm:text-xl font-semibold text-[var(--global-text)]">
             {mode === "login" ? "Welcome Back" : "Create Account"}
           </h5>
 
@@ -438,7 +440,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                 id="refererCode"
                 type="text"
                 name="refererCode"
-                placeholder="Enter MYREFERALCODE to get $100 bonus"
+                placeholder="Enter referal code to get bonus"
                 value={refererCode}
                 onChange={(e) => setRefererCode(e.target.value.toUpperCase())}
                 className="w-full border border-[var(--strokes-default)] rounded-lg px-3 py-[10px] outline-none focus:border-[var(--primary-default)] bg-[var(--background-default)] text-[var(--global-text)] placeholder:text-[var(--text-white-50)] text-sm hover:bg-[var(--background-secondary)] transition-smooth-fast"

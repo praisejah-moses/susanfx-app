@@ -28,22 +28,22 @@ const CRYPTO_WALLETS: Record<
 > = {
   BTC: {
     symbol: "BTC",
-    address: "bc1qy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wsy",
+    address: "bc1q4j2ld6rwgjyvg2tz737ulxx2gktrvjqe9xzs0l",
     network: "Bitcoin Mainnet",
   },
   "USDT (ERC20)": {
     symbol: "USDT",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f83529",
+    address: "0x907a3064e513C051637927c945A8dce5b8eC9BeA",
     network: "Ethereum (ERC20)",
   },
   ETH: {
     symbol: "ETH",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f83529",
+    address: "0x907a3064e513C051637927c945A8dce5b8eC9BeA",
     network: "Ethereum Mainnet",
   },
   SOL: {
     symbol: "SOL",
-    address: "GJUoKbVqB3qWiTHc9KvpKLGQ9JQ5kR2z4Q7xQvqQjq9x",
+    address: "GBCVGTh2Sdvr6UshQGBkmZzs3sCCPzEppRzfmRTeCMuP",
     network: "Solana Mainnet Beta",
   },
 };

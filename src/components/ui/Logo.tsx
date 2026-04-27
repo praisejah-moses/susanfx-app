@@ -3,14 +3,18 @@ interface LogoProps {
   height?: number;
 }
 
-export default function Logo({ className = "", height = 32 }: LogoProps) {
+export default function Logo({ className = "", height }: LogoProps) {
+  const imgClasses = height
+    ? `h-[${height}px] w-auto`
+    : `h-8 w-auto ${className}`;
+
   return (
-    <a href="/" className={`inline-flex items-center ${className}`}>
+    <a href="/" className={`inline-flex items-center ${height ? className : ''}`}>
       <img
         src="/images/shared/logo.svg"
         alt="SusanFX Trader"
-        height={height}
-        style={{ height: `${height}px`, width: "auto" }}
+        className={imgClasses}
+        style={height ? { height: `${height}px`, width: "auto" } : undefined}
       />
     </a>
   );
