@@ -52,7 +52,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [country, setCountry] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [refererCode, setRefererCode] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  // const [ setAgreedToTerms] = useState(false);
   const [signupConfirmationEmail, setSignupConfirmationEmail] = useState<
     string | null
   >(null);
@@ -227,7 +227,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               setCountry("");
               setPhoneNumber("");
               setRefererCode("");
-              setAgreedToTerms(false);
+              // setAgreedToTerms(false);
               setError(null);
             }}
             className="mt-4 text-sm text-[var(--primary-default)] hover:underline transition-all"
