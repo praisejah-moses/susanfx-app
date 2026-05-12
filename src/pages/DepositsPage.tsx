@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAccount } from "../hooks/useAccount";
 import { supabase } from "../utils/supabase";
 import type { DepositRow } from "../types/database";
+import { useToast, ToastContainer } from "../components/ui/Toast";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -56,11 +57,12 @@ export default function DepositsPage() {
 
   const { account } = useAccount(user?.id);
 
+  const { toasts, addToast, removeToast } = useToast();
+
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showWalletPopout, setShowWalletPopout] = useState(false);
-  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [deposits, setDeposits] = useState<DepositRow[]>([]);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [pendingDeposit, setPendingDeposit] = useState<DepositRow | null>(null);
@@ -69,8 +71,7 @@ export default function DepositsPage() {
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
-    setCopiedAddress(address);
-    setTimeout(() => setCopiedAddress(null), 2000);
+    addToast("Address copied to clipboard", "success");
   };
 
   // Fetch deposits on mount
@@ -100,6 +101,7 @@ export default function DepositsPage() {
       .from("deposits")
       .insert({
         user_id: user.id,
+        account_id: account?.id ?? null,
         amount: parsedAmount,
         method: method,
         status: "Pending",
@@ -107,6 +109,7 @@ export default function DepositsPage() {
       })
       .select()
       .single();
+      console.log("Insert result:", { data});
 
     if (error) {
       setSubmitting(false);
@@ -406,15 +409,9 @@ export default function DepositsPage() {
                       onClick={() =>
                         handleCopyAddress(CRYPTO_WALLETS[method].address)
                       }
-                      className={`w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                        copiedAddress === CRYPTO_WALLETS[method].address
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                          : "bg-white/5 text-(--text-white-50) hover:bg-white/10 border border-(--border-normal)"
-                      }`}
+                      className="w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors bg-white/5 text-(--text-white-50) hover:bg-white/10 border border-(--border-normal)"
                     >
-                      {copiedAddress === CRYPTO_WALLETS[method].address
-                        ? "✓ Copied to Clipboard"
-                        : "Copy Address"}
+                      Copy Address
                     </button>
                   </div>
 
@@ -618,6 +615,7 @@ export default function DepositsPage() {
           </div>
         )}
       </div>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

@@ -42,6 +42,18 @@ export default function SettingsPage() {
     null,
   );
 
+  // Password strength: 0–4
+  const pwStrength = (() => {
+    let score = 0;
+    if (newPassword.length >= 8) score++;
+    if (/[A-Z]/.test(newPassword)) score++;
+    if (/[0-9]/.test(newPassword)) score++;
+    if (/[^A-Za-z0-9]/.test(newPassword)) score++;
+    return score;
+  })();
+  const pwStrengthLabel = ["Weak", "Fair", "Good", "Strong", "Very Strong"][pwStrength];
+  const pwStrengthColor = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-emerald-400", "bg-emerald-500"][pwStrength];
+
   const [emailNotifs, setEmailNotifs] = useState(prefs?.email_notifs ?? true);
   const [tradeAlerts, setTradeAlerts] = useState(prefs?.trade_alerts ?? true);
   const [payoutAlerts, setPayoutAlerts] = useState(
@@ -235,6 +247,16 @@ export default function SettingsPage() {
                     placeholder="Enter new password"
                     className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
                   />
+                  {newPassword.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex gap-1">
+                        {[0,1,2,3].map((i) => (
+                          <div key={i} className={`flex-1 h-1 rounded-full ${i < pwStrength ? pwStrengthColor : "bg-white/10"}`} />
+                        ))}
+                      </div>
+                      <p className="text-xs text-(--text-white-50)">{pwStrengthLabel}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs text-(--text-white-50)">
@@ -267,19 +289,19 @@ export default function SettingsPage() {
                 [
                   {
                     label: "Email Notifications",
-                    sub: "Receive account updates via email",
+                    sub: "Account updates, deposit confirmations, and important alerts sent to your registered email",
                     value: emailNotifs,
                     key: "emailNotifs" as const,
                   },
                   {
                     label: "Trade Alerts",
-                    sub: "Get alerts on trade executions",
+                    sub: "Real-time notifications when a trade is opened, closed, or hits stop loss / take profit",
                     value: tradeAlerts,
                     key: "tradeAlerts" as const,
                   },
                   {
                     label: "Payout Notifications",
-                    sub: "Notify when payout is processed",
+                    sub: "Get notified when a withdrawal request is approved or a payout is sent",
                     value: payoutAlerts,
                     key: "payoutAlerts" as const,
                   },

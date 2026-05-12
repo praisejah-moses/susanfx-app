@@ -20,6 +20,7 @@ export interface TradeRow {
 export interface DepositRow {
   id: string;
   user_id: string;
+  account_id?: string | null;
   amount: number;
   method: "BTC" | "USDT (ERC20)" | "ETH" | "SOL";
   status: "Pending" | "Completed" | "Rejected";
@@ -44,6 +45,12 @@ export interface WithdrawalRow {
   status: "Pending" | "Completed" | "Rejected";
   wallet_address: string | null;
   created_at: string;
+  account_holder_name?: string | null;
+  address?: string | null;
+  bank_name?: string | null;
+  account_number?: string | null;
+  routing_number?: string | null;
+  withdrawal_coupon?: string | null;
 }
 
 export interface AccountRow {

@@ -9,7 +9,10 @@ export default function Logo({ className = "", height }: LogoProps) {
     : `h-8 w-auto ${className}`;
 
   return (
-    <a href="/" className={`inline-flex items-center ${height ? className : ''}`}>
+    <a
+      href="/"
+      className={`inline-flex items-center ${height ? className : ""}`}
+    >
       <img
         src="/images/shared/logo.svg"
         alt="SusanFX Trader"

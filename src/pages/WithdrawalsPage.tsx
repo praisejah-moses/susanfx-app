@@ -77,6 +77,12 @@ export default function WithdrawalsPage() {
 
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankAmount, setBankAmount] = useState("");
+  const [accountHolderName, setAccountHolderName] = useState("");
+  const [address, setAddress] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [routingNumber, setRoutingNumber] = useState("");
+  const [withdrawalCoupon, setWithdrawalCoupon] = useState("");
 
   const [showProcessingModal, setShowProcessingModal] = useState(false);
   const [processingWithdrawal, setProcessingWithdrawal] = useState<{
@@ -85,6 +91,7 @@ export default function WithdrawalsPage() {
     network?: string;
   } | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+  const [bankSubmitting, setBankSubmitting] = useState(false);
 
   async function handleWalletConfirm() {
     if (!selectedCrypto || !amount || !walletAddress) {
@@ -140,7 +147,10 @@ export default function WithdrawalsPage() {
   }
 
   async function handleBankConfirm() {
-    if (!bankAmount) return;
+    if (!bankAmount || !accountHolderName || !address || !bankName || !accountNumber || !routingNumber) {
+      setWithdrawError("Please fill in all required fields.");
+      return;
+    }
     const parsed = parseFloat(bankAmount);
     if (!parsed || parsed <= 0) {
       setWithdrawError("Enter a valid amount.");
@@ -154,26 +164,41 @@ export default function WithdrawalsPage() {
     }
 
     setWithdrawError(null);
+    setBankSubmitting(true);
 
-    setProcessingWithdrawal({
-      amount: parsed,
-      method: "Bank Transfer",
-    });
+    const err = await submit(
+      parsed,
+      "Bank Transfer",
+      undefined,
+      {
+        accountHolderName,
+        address,
+        bankName,
+        accountNumber,
+        routingNumber,
+        withdrawalCoupon: withdrawalCoupon || undefined,
+      }
+    );
 
+    setBankSubmitting(false);
+
+    if (err) {
+      setWithdrawError(err);
+      return;
+    }
+
+    // Success — record is now in DB with Pending status
+    setProcessingWithdrawal({ amount: parsed, method: "Bank Transfer" });
     setShowBankModal(false);
     setShowProcessingModal(true);
-
-    // Simulate processing delay
-    setTimeout(async () => {
-      const err = await submit(parsed, "Bank Transfer");
-
-      if (!err) {
-        setShowProcessingModal(false);
-        setBankAmount("");
-        setMethod("");
-        setProcessingWithdrawal(null);
-      }
-    }, 2000);
+    setBankAmount("");
+    setAccountHolderName("");
+    setAddress("");
+    setBankName("");
+    setAccountNumber("");
+    setRoutingNumber("");
+    setWithdrawalCoupon("");
+    setMethod("");
   }
 
   function handleMethodSelect(methodId: string) {
@@ -471,14 +496,14 @@ export default function WithdrawalsPage() {
 
       {/* Bank Withdrawal Modal */}
       {showBankModal && (
-        <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp">
+        <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#1a1a1a] border border-(--border-normal) rounded-2xl max-w-md w-full p-6 space-y-4 animate-fadeInUp my-8">
             <div>
               <p className="text-sm font-semibold text-(--global-text)">
-                Bank Transfer Withdrawal
+                Bank Account Withdrawal
               </p>
               <p className="text-xs text-(--text-white-50) mt-1">
-                Transfer funds to your bank account
+                Provide your bank account details
               </p>
             </div>
 
@@ -488,26 +513,106 @@ export default function WithdrawalsPage() {
               </p>
             )}
 
-            <div className="bg-(--background-default) rounded-lg p-3 space-y-2">
-              <p className="text-xs text-(--text-white-50)">
-                Contact us @support.susanfxwebmailblah.co. An instant bank will
-                be provided for you
-              </p>
-            </div>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {/* Full Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={accountHolderName}
+                  onChange={(e) => setAccountHolderName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-(--text-white-50)">
-                Amount (USD)
-              </label>
-              <input
-                type="number"
-                min="1"
-                step="0.01"
-                value={bankAmount}
-                onChange={(e) => setBankAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
-              />
+              {/* Address */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Address *
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter your address"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
+
+              {/* Bank Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Bank Name *
+                </label>
+                <input
+                  type="text"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  placeholder="Enter your bank name"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
+
+              {/* Account Number */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Account Number *
+                </label>
+                <input
+                  type="text"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  placeholder="Enter your account number"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
+
+              {/* Routing Number */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Routing Number *
+                </label>
+                <input
+                  type="text"
+                  value={routingNumber}
+                  onChange={(e) => setRoutingNumber(e.target.value)}
+                  placeholder="Enter your routing number"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
+
+              {/* Withdrawal Coupon (Optional) */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Withdrawal Coupon <span className="text-(--text-white-50) font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={withdrawalCoupon}
+                  onChange={(e) => setWithdrawalCoupon(e.target.value)}
+                  placeholder="Enter withdrawal coupon if you have one"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
+
+              {/* Amount */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-(--text-white-50) font-medium">
+                  Amount (USD) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={bankAmount}
+                  onChange={(e) => setBankAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  className="bg-(--background-default) border border-(--strokes-default) rounded-lg px-3 py-2.5 text-sm text-(--global-text) placeholder:text-(--text-white-50) outline-none focus:border-(--primary-default) transition-colors"
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -515,6 +620,12 @@ export default function WithdrawalsPage() {
                 onClick={() => {
                   setShowBankModal(false);
                   setBankAmount("");
+                  setAccountHolderName("");
+                  setAddress("");
+                  setBankName("");
+                  setAccountNumber("");
+                  setRoutingNumber("");
+                  setWithdrawalCoupon("");
                   setWithdrawError(null);
                 }}
                 className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold border border-(--border-normal) text-(--global-text) hover:bg-white/5 transition-colors"
@@ -523,10 +634,10 @@ export default function WithdrawalsPage() {
               </button>
               <button
                 onClick={handleBankConfirm}
-                disabled={!bankAmount}
+                disabled={bankSubmitting || !bankAmount || !accountHolderName || !address || !bankName || !accountNumber || !routingNumber}
                 className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold bg-(--primary-default) text-(--primary-text) hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm
+                {bankSubmitting ? "Submitting…" : "Confirm"}
               </button>
             </div>
           </div>

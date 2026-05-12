@@ -10,6 +10,14 @@ export interface UseWithdrawals {
     amount: number,
     method: WithdrawalRow["method"],
     walletAddress?: string | null,
+    bankDetails?: {
+      accountHolderName?: string;
+      address?: string;
+      bankName?: string;
+      accountNumber?: string;
+      routingNumber?: string;
+      withdrawalCoupon?: string;
+    },
   ) => Promise<string | null>;
 }
 
@@ -53,6 +61,14 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
       amount: number,
       method: WithdrawalRow["method"],
       walletAddress?: string | null,
+      bankDetails?: {
+        accountHolderName?: string;
+        address?: string;
+        bankName?: string;
+        accountNumber?: string;
+        routingNumber?: string;
+        withdrawalCoupon?: string;
+      },
     ) => {
       if (!userId) return "Not authenticated";
       const { error } = await supabase.from("withdrawals").insert({
@@ -61,6 +77,12 @@ export function useWithdrawals(userId: string | undefined): UseWithdrawals {
         method,
         status: "Pending",
         wallet_address: walletAddress || null,
+        account_holder_name: bankDetails?.accountHolderName || null,
+        address: bankDetails?.address || null,
+        bank_name: bankDetails?.bankName || null,
+        account_number: bankDetails?.accountNumber || null,
+        routing_number: bankDetails?.routingNumber || null,
+        withdrawal_coupon: bankDetails?.withdrawalCoupon || null,
       });
       if (error) return error.message;
 

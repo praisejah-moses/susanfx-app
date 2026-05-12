@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { useAuth } from "./context/AuthContext";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 // Lazy load all pages for code splitting
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -36,6 +37,7 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
+    <ErrorBoundary>
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -113,6 +115,7 @@ function App() {
         />
       </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }
 

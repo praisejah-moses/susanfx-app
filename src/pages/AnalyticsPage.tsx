@@ -15,6 +15,9 @@ function fmt(n: number) {
 
 export default function AnalyticsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<"7d" | "30d" | "90d" | "all">("all");
+  const [pairSort, setPairSort] = useState<"pnl" | "trades" | "winRate">("pnl");
+  const [pairSortAsc, setPairSortAsc] = useState(false);
   const { user } = useAuth();
   const userName =
     user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Trader";
@@ -22,10 +25,19 @@ export default function AnalyticsPage() {
   const { trades, loading } = useTrades(user?.id);
   const { account } = useAccount(user?.id);
 
-  const closed = useMemo(
+  const allClosed = useMemo(
     () => trades.filter((t) => t.status === "Closed" && t.pnl != null),
     [trades],
   );
+
+  const closed = useMemo(() => {
+    if (dateRange === "all") return allClosed;
+    const cutoff = new Date();
+    if (dateRange === "7d") cutoff.setDate(cutoff.getDate() - 7);
+    else if (dateRange === "30d") cutoff.setDate(cutoff.getDate() - 30);
+    else if (dateRange === "90d") cutoff.setDate(cutoff.getDate() - 90);
+    return allClosed.filter((t) => new Date(t.closed_at ?? t.opened_at) >= cutoff);
+  }, [allClosed, dateRange]);
   const wins = useMemo(() => closed.filter((t) => (t.pnl ?? 0) > 0), [closed]);
   const losses = useMemo(
     () => closed.filter((t) => (t.pnl ?? 0) <= 0),
@@ -43,6 +55,10 @@ export default function AnalyticsPage() {
       : 0;
   const profitFactor =
     avgLoss > 0 ? (avgProfit * wins.length) / (avgLoss * losses.length) : 0;
+  const expectancy =
+    closed.length > 0
+      ? (winRate / 100) * avgProfit - (1 - winRate / 100) * avgLoss
+      : 0;
   const bestTrade = closed.reduce(
     (best, t) => ((t.pnl ?? 0) > (best?.pnl ?? -Infinity) ? t : best),
     closed[0] ?? null,
@@ -78,6 +94,12 @@ export default function AnalyticsPage() {
       positive: profitFactor >= 1.5,
     },
     {
+      label: "Expectancy",
+      value: fmt(expectancy),
+      sub: "Avg $ per trade",
+      positive: expectancy >= 0,
+    },
+    {
       label: "Best Trade",
       value: bestTrade ? fmt(bestTrade.pnl!) : "—",
       sub: bestTrade ? `${bestTrade.pair} ${bestTrade.type}` : "",
@@ -91,7 +113,6 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // Group by pair
   const pairMap = useMemo(() => {
     const m = new Map<string, { total: number; wins: number; pnl: number }>();
     for (const t of closed) {
@@ -101,15 +122,27 @@ export default function AnalyticsPage() {
       e.pnl += t.pnl ?? 0;
       m.set(t.pair, e);
     }
-    return Array.from(m.entries())
-      .map(([pair, v]) => ({
-        pair,
-        trades: v.total,
-        winRate: v.total > 0 ? `${Math.round((v.wins / v.total) * 100)}%` : "—",
-        pnl: v.pnl,
-      }))
-      .sort((a, b) => b.pnl - a.pnl);
-  }, [closed]);
+    const rows = Array.from(m.entries()).map(([pair, v]) => ({
+      pair,
+      trades: v.total,
+      winRateNum: v.total > 0 ? (v.wins / v.total) * 100 : 0,
+      winRate: v.total > 0 ? `${Math.round((v.wins / v.total) * 100)}%` : "—",
+      pnl: v.pnl,
+    }));
+    rows.sort((a, b) => {
+      let diff = 0;
+      if (pairSort === "pnl") diff = a.pnl - b.pnl;
+      else if (pairSort === "trades") diff = a.trades - b.trades;
+      else diff = a.winRateNum - b.winRateNum;
+      return pairSortAsc ? diff : -diff;
+    });
+    return rows;
+  }, [closed, pairSort, pairSortAsc]);
+
+  const toggleSort = (col: "pnl" | "trades" | "winRate") => {
+    if (pairSort === col) setPairSortAsc((v) => !v);
+    else { setPairSort(col); setPairSortAsc(false); }
+  };
 
   return (
     <div className="min-h-screen bg-(--background-default) text-(--global-text)">
@@ -127,6 +160,25 @@ export default function AnalyticsPage() {
         />
 
         <main className="flex-1 px-4 md:px-8 py-5 md:py-8 space-y-6 animate-fadeInUp">
+          {/* Date range filter */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {(["7d", "30d", "90d", "all"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setDateRange(r)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  dateRange === r
+                    ? "bg-(--primary-default) text-white"
+                    : "bg-white/5 text-(--text-white-50) hover:bg-white/10"
+                }`}
+              >
+                {r === "all" ? "All Time" : r === "7d" ? "7 Days" : r === "30d" ? "30 Days" : "90 Days"}
+              </button>
+            ))}
+            <span className="text-xs text-(--text-white-50) ml-2">
+              {closed.length} trade{closed.length !== 1 ? "s" : ""} in range
+            </span>
+          </div>
           {loading ? (
             <p className="text-xs text-(--text-white-50)">Loading analytics…</p>
           ) : (
@@ -194,15 +246,18 @@ export default function AnalyticsPage() {
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-xs min-w-[360px]">
                     <thead>
                       <tr className="border-b border-(--border-normal) text-(--text-white-50) uppercase tracking-wider">
-                        {["Pair", "Trades", "Win Rate", "Net P&L"].map((h) => (
+                        <th className="text-left px-5 py-3 font-medium">Pair</th>
+                        {(["trades", "winRate", "pnl"] as const).map((col) => (
                           <th
-                            key={h}
-                            className="text-left px-5 py-3 font-medium"
+                            key={col}
+                            onClick={() => toggleSort(col)}
+                            className="text-left px-5 py-3 font-medium cursor-pointer hover:text-(--global-text) transition-colors select-none"
                           >
-                            {h}
+                            {col === "pnl" ? "Net P&L" : col === "winRate" ? "Win Rate" : "Trades"}
+                            {pairSort === col ? (pairSortAsc ? " ↑" : " ↓") : " ↕"}
                           </th>
                         ))}
                       </tr>

@@ -32,8 +32,23 @@ export default function DashboardPage() {
   const profitTarget = account?.profit_target ?? 10000;
   const targetPct =
     startBalance > 0 ? Math.min((profit / profitTarget) * 100, 100) : 0;
+  const profitTargetPct =
+    startBalance > 0 ? ((profitTarget / startBalance) * 100).toFixed(1) : "8.0";
   const dailyDD = account?.daily_drawdown ?? 0;
   const maxDD = account?.max_drawdown ?? 0;
+  const minTradingDays = 10;
+
+  // Trading days: distinct calendar dates that have at least one trade
+  const tradingDaysCount = new Set(
+    trades.map((t) => t.opened_at?.slice(0, 10)).filter(Boolean),
+  ).size;
+  const tradingDaysPct = Math.min((tradingDaysCount / minTradingDays) * 100, 100);
+
+  // Drawdown warning thresholds (amber at 80% of limit, red at/over limit)
+  const dailyDDWarn = dailyDD >= 5;
+  const dailyDDAmber = !dailyDDWarn && dailyDD >= 4;
+  const maxDDWarn = maxDD >= 10;
+  const maxDDAmber = !maxDDWarn && maxDD >= 8;
 
   // Recent trades: 5 most recent
   const recentTrades = trades.slice(0, 5);
@@ -85,7 +100,7 @@ export default function DashboardPage() {
               <StatCard
                 label="Total Profit"
                 value={fmt(profit)}
-                subtext={`Target: ${fmt(profitTarget)} (8%)`}
+                subtext={`Target: ${fmt(profitTarget)} (${profitTargetPct}%)`}
                 trend={profit >= 0 ? "up" : "down"}
                 trendValue={`${profitPct.toFixed(2)}%`}
                 icon={
@@ -110,8 +125,8 @@ export default function DashboardPage() {
                 label="Daily Drawdown"
                 value={`${dailyDD.toFixed(2)}%`}
                 subtext="Limit: 5.00%"
-                trend="neutral"
-                trendValue={dailyDD < 5 ? "Safe" : "Warning"}
+                trend={dailyDDWarn ? "down" : dailyDDAmber ? "neutral" : "neutral"}
+                trendValue={dailyDDWarn ? "At Limit" : dailyDDAmber ? "Warning" : "Safe"}
                 icon={
                   <svg
                     width="18"
@@ -135,8 +150,8 @@ export default function DashboardPage() {
                 label="Max Drawdown"
                 value={`${maxDD.toFixed(2)}%`}
                 subtext="Limit: 10.00%"
-                trend="neutral"
-                trendValue={maxDD < 10 ? "Safe" : "Warning"}
+                trend={maxDDWarn ? "down" : maxDDAmber ? "neutral" : "neutral"}
+                trendValue={maxDDWarn ? "At Limit" : maxDDAmber ? "Warning" : "Safe"}
                 icon={
                   <svg
                     width="18"
@@ -186,18 +201,18 @@ export default function DashboardPage() {
                   Minimum Trading Days
                 </span>
                 <span className="text-xs text-(--primary-default) font-semibold">
-                  4 / 10 days
+                  {tradingDaysCount} / {minTradingDays} days
                 </span>
               </div>
               <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-(--primary-default) rounded-full"
-                  style={{ width: "40%" }}
+                  style={{ width: `${tradingDaysPct}%` }}
                 />
               </div>
               <div className="flex justify-between text-xs text-(--text-white-50)">
-                <span>Completed: 4 days</span>
-                <span>Required: 10 days</span>
+                <span>Completed: {tradingDaysCount} days</span>
+                <span>Required: {minTradingDays} days</span>
               </div>
             </div>
           </section>
@@ -306,8 +321,8 @@ export default function DashboardPage() {
               {[
                 { label: "Daily drawdown ≤ 5%", pass: dailyDD < 5 },
                 { label: "Max drawdown ≤ 10%", pass: maxDD < 10 },
-                { label: "Minimum trading days (10)", pass: false },
-                { label: `Profit target reached (8%)`, pass: profitPct >= 8 },
+                { label: `Minimum trading days (${minTradingDays})`, pass: tradingDaysCount >= minTradingDays },
+                { label: `Profit target reached (${profitTargetPct}%)`, pass: profitPct >= parseFloat(profitTargetPct) },
                 { label: "No weekend holding", pass: true },
                 { label: "No copy trading / EA violations", pass: true },
               ].map((rule) => (

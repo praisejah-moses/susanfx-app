@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardTopBar from "../components/dashboard/DashboardTopBar";
 import FxChart from "../components/dashboard/FxChart";
 import { useAuth } from "../context/AuthContext";
 import { useTrades } from "../hooks/useTrades";
 import { useAccount } from "../hooks/useAccount";
+import { useToast, ToastContainer } from "../components/ui/Toast";
 
 // ── Symbol catalogue ─────────────────────────────────────────────────────────
 const SYMBOLS = [
@@ -183,8 +184,10 @@ export default function DashboardTradingPage() {
   const [orderSheetOpen, setOrderSheetOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
+  const { toasts, addToast, removeToast } = useToast();
 
   // ── Live price simulation ─────────────────────────────────────────────────
   const [prices, setPrices] = useState<Record<string, number>>({
@@ -219,9 +222,7 @@ export default function DashboardTradingPage() {
   // ── Derived ───────────────────────────────────────────────────────────────
   const openPositions = trades.filter((t) => t.status === "Open");
   const closedTrades = trades.filter((t) => t.status === "Closed");
-  const fee = FEES[activeSymbol];
   const currentPrice = prices[activeSymbol] ?? BASE_PRICES[activeSymbol];
-  const lotSize = parseFloat(lots) || 0;
 
   // Unrealized P&L across all open positions
   const totalUnrealizedPnl = openPositions.reduce((sum, t) => {
@@ -240,16 +241,43 @@ export default function DashboardTradingPage() {
   const balance = account?.balance ?? 0;
   const equity = balance + totalUnrealizedPnl;
 
+  // ── Live risk calculation ─────────────────────────────────────────────────
+  const feeInfo = FEES[activeSymbol];
+  const lotSize = parseFloat(lots) || 0;
+  const entryPrice = useMemo(() =>
+    orderType === "Buy"
+      ? currentPrice + feeInfo.spreadPips
+      : currentPrice - feeInfo.spreadPips,
+  [orderType, currentPrice, feeInfo.spreadPips]);
+
+  const spreadCostUsd = useMemo(() => {
+    if (lotSize <= 0) return 0;
+    return Math.abs(calcPnl(activeSymbol, orderType, lotSize, entryPrice, entryPrice - feeInfo.spreadPips));
+  }, [activeSymbol, orderType, lotSize, entryPrice, feeInfo.spreadPips]);
+
+  const riskUsd = useMemo(() => {
+    if (!sl || lotSize <= 0) return null;
+    const slPrice = parseFloat(sl);
+    if (isNaN(slPrice)) return null;
+    return calcPnl(activeSymbol, orderType, lotSize, entryPrice, slPrice);
+  }, [sl, lotSize, activeSymbol, orderType, entryPrice]);
+
+  const rewardUsd = useMemo(() => {
+    if (!tp || lotSize <= 0) return null;
+    const tpPrice = parseFloat(tp);
+    if (isNaN(tpPrice)) return null;
+    return calcPnl(activeSymbol, orderType, lotSize, entryPrice, tpPrice);
+  }, [tp, lotSize, activeSymbol, orderType, entryPrice]);
+
   // ── Order handlers ────────────────────────────────────────────────────────
-  const handlePlaceOrder = useCallback(async () => {
+  // Step 1: validate and open confirmation modal
+  const handlePlaceOrder = useCallback(() => {
     setOrderError(null);
-    setOrderSuccess(null);
     const size = parseFloat(lots);
     if (isNaN(size) || size <= 0) {
       setOrderError("Invalid lot size.");
       return;
     }
-    const feeInfo = FEES[activeSymbol];
     if (
       size < parseFloat(feeInfo.minLot) ||
       size > parseFloat(feeInfo.maxLot)
@@ -263,13 +291,12 @@ export default function DashboardTradingPage() {
       setOrderError("Insufficient balance to place a trade.");
       return;
     }
+    setShowConfirmModal(true);
+  }, [lots, feeInfo, balance]);
 
-    // Apply spread to entry price
-    const entryPrice =
-      orderType === "Buy"
-        ? currentPrice + feeInfo.spreadPips
-        : currentPrice - feeInfo.spreadPips;
-
+  // Step 2: confirmed — actually execute the order
+  const handleConfirmOrder = useCallback(async () => {
+    const size = parseFloat(lots);
     setSubmitting(true);
     const { error } = await openTrade({
       pair: activeSymbol,
@@ -280,20 +307,22 @@ export default function DashboardTradingPage() {
       tp: tp ? parseFloat(tp) : null,
     });
     setSubmitting(false);
+    setShowConfirmModal(false);
 
     if (error) {
       setOrderError(error);
       return;
     }
-    setOrderSuccess(
-      `${orderType} ${size} lots of ${activeSymbol} @ ${fmtPrice(activeSymbol, entryPrice)}`,
+    addToast(
+      `${orderType} ${size} lots of ${activeSymbol} opened @ ${fmtPrice(activeSymbol, entryPrice)}`,
+      "success",
     );
     setLots("0.10");
     setSl("");
     setTp("");
     setActiveTab("positions");
     setOrderSheetOpen(false);
-  }, [lots, activeSymbol, orderType, currentPrice, sl, tp, balance, openTrade]);
+  }, [lots, activeSymbol, orderType, entryPrice, sl, tp, openTrade, addToast]);
 
   /* eslint-disable react-hooks/preserve-manual-memoization */
   const handleCloseTrade = useCallback(
@@ -314,10 +343,14 @@ export default function DashboardTradingPage() {
       if (!err) {
         const newBalance = balance + pnl;
         await updateBalance(newBalance);
+        addToast(
+          `${trade.pair} ${trade.type} closed @ ${fmtPrice(trade.pair, closePrice)} | P&L: ${pnl >= 0 ? "+" : ""}${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(pnl)}`,
+          pnl >= 0 ? "success" : "error",
+        );
       }
       setClosingId(null);
     },
-    [openPositions, closeTrade, balance, updateBalance],
+    [openPositions, closeTrade, balance, updateBalance, addToast],
   );
   /* eslint-enable react-hooks/preserve-manual-memoization */
 
@@ -331,7 +364,7 @@ export default function DashboardTradingPage() {
       <div className="md:ml-60 flex flex-col min-h-screen">
         <DashboardTopBar
           title="Trading"
-          subtitle="Live FX Simulation"
+          subtitle="Trade the market"
           onSidebarToggle={setSidebarOpen}
           balance={balance}
           actions={
@@ -359,10 +392,6 @@ export default function DashboardTradingPage() {
                   {fmt(totalUnrealizedPnl)}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live Sim
-              </span>
             </div>
           }
         />
@@ -408,7 +437,7 @@ export default function DashboardTradingPage() {
           {/* ── Chart + bottom panel ───────────────────────────────── */}
           <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
             <div className="h-64 sm:h-80 lg:flex-1 lg:h-auto shrink-0 lg:shrink p-2 sm:p-3 lg:p-4">
-              <FxChart symbol={activeSymbol} />
+              <FxChart symbol={activeSymbol} trades={trades} />
             </div>
 
             {/* ── Bottom panel ───────────────────────────────────── */}
@@ -496,7 +525,8 @@ export default function DashboardTradingPage() {
                           return (
                             <tr
                               key={p.id}
-                              className="hover:bg-white/2 transition-colors"
+                              onClick={() => setSelectedPositionId(p.id)}
+                              className="hover:bg-white/5 transition-colors cursor-pointer"
                             >
                               <td className="px-4 py-2.5 font-semibold">
                                 {p.pair}
@@ -531,7 +561,7 @@ export default function DashboardTradingPage() {
                               </td>
                               <td className="px-4 py-2.5">
                                 <button
-                                  onClick={() => handleCloseTrade(p.id)}
+                                  onClick={(e) => { e.stopPropagation(); handleCloseTrade(p.id); }}
                                   disabled={closingId === p.id}
                                   className="text-xs text-red-400 hover:text-red-300 transition-colors font-medium disabled:opacity-50"
                                 >
@@ -637,18 +667,18 @@ export default function DashboardTradingPage() {
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                       {[
-                        { label: "Spread", value: fee.spread },
-                        { label: "Commission", value: fee.commission },
+                        { label: "Spread", value: feeInfo.spread },
+                        { label: "Commission", value: feeInfo.commission },
                         {
                           label: "Swap Long",
-                          value: `${fee.swap_long} pts/night`,
+                          value: `${feeInfo.swap_long} pts/night`,
                         },
                         {
                           label: "Swap Short",
-                          value: `${fee.swap_short} pts/night`,
+                          value: `${feeInfo.swap_short} pts/night`,
                         },
-                        { label: "Min Lot", value: fee.minLot },
-                        { label: "Max Lot", value: fee.maxLot },
+                        { label: "Min Lot", value: feeInfo.minLot },
+                        { label: "Max Lot", value: feeInfo.maxLot },
                       ].map((item) => (
                         <div
                           key={item.label}
@@ -683,16 +713,14 @@ export default function DashboardTradingPage() {
 
           <aside
             className={`
-              fixed lg:static bottom-0 left-0 right-0 z-50
+              max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:right-0 max-lg:z-50
               lg:w-64 shrink-0
               flex flex-col
               bg-(--background-tertiary)
-              border-t lg:border-t-0 lg:border-l border-(--border-normal)
+              max-lg:border-t lg:border-l border-(--border-normal)
               transition-transform duration-300 ease-in-out
-              ${orderSheetOpen ? "translate-y-0" : "translate-y-full"}
-              lg:translate-y-0
-              max-h-[90vh] lg:max-h-none
-              rounded-t-2xl lg:rounded-none
+              max-lg:max-h-[90vh] max-lg:rounded-t-2xl
+              ${orderSheetOpen ? "" : "max-lg:translate-y-full"}
             `}
           >
             {/* Drag handle (mobile only) */}
@@ -749,11 +777,11 @@ export default function DashboardTradingPage() {
                 </p>
                 <p className="text-xs mt-0.5">
                   <span className="text-emerald-400">
-                    ASK {fmtPrice(activeSymbol, currentPrice + fee.spreadPips)}
+                  ASK {fmtPrice(activeSymbol, currentPrice + feeInfo.spreadPips)}
                   </span>
                   {" · "}
                   <span className="text-red-400">
-                    BID {fmtPrice(activeSymbol, currentPrice - fee.spreadPips)}
+                    BID {fmtPrice(activeSymbol, currentPrice - feeInfo.spreadPips)}
                   </span>
                 </p>
               </div>
@@ -784,7 +812,7 @@ export default function DashboardTradingPage() {
                     onClick={() =>
                       setLots((v) =>
                         Math.max(
-                          parseFloat(fee.minLot),
+                          parseFloat(feeInfo.minLot),
                           parseFloat(v) - 0.01,
                         ).toFixed(2),
                       )
@@ -798,15 +826,15 @@ export default function DashboardTradingPage() {
                     value={lots}
                     onChange={(e) => setLots(e.target.value)}
                     step="0.01"
-                    min={fee.minLot}
-                    max={fee.maxLot}
+                    min={feeInfo.minLot}
+                    max={feeInfo.maxLot}
                     className="flex-1 bg-white/5 border border-(--border-normal) rounded px-3 py-1.5 text-sm text-center text-(--global-text) focus:outline-none focus:border-(--primary-default)"
                   />
                   <button
                     onClick={() =>
                       setLots((v) =>
                         Math.min(
-                          parseFloat(fee.maxLot),
+                          parseFloat(feeInfo.maxLot),
                           parseFloat(v) + 0.01,
                         ).toFixed(2),
                       )
@@ -817,46 +845,46 @@ export default function DashboardTradingPage() {
                   </button>
                 </div>
                 <p className="text-xs text-(--text-white-50) mt-1">
-                  Range: {fee.minLot} – {fee.maxLot} lots
+                  Range: {feeInfo.minLot} – {feeInfo.maxLot} lots
                 </p>
               </div>
 
-              {/* Estimated P&L for 100 pip move */}
+              {/* Live risk / reward calculator */}
               {lotSize > 0 && (
-                <div className="bg-white/3 rounded-lg p-3 text-xs space-y-1">
-                  <p className="text-(--text-white-50) font-medium">
-                    Est. values
-                  </p>
-                  <div className="flex justify-between">
-                    <span className="text-(--text-white-50)">Value / pip</span>
-                    <span className="font-mono">
-                      {fmt(
-                        Math.abs(
-                          calcPnl(
-                            activeSymbol,
-                            orderType,
-                            lotSize,
-                            currentPrice,
-                            currentPrice +
-                              (PRICE_DECIMALS[activeSymbol] <= 3
-                                ? 0.01
-                                : 0.0001),
-                          ),
-                        ),
-                      )}
-                    </span>
-                  </div>
+                <div className="bg-white/3 rounded-lg p-3 text-xs space-y-1.5">
+                  <p className="text-(--text-white-50) font-semibold mb-1">Order Summary</p>
                   <div className="flex justify-between">
                     <span className="text-(--text-white-50)">Entry price</span>
-                    <span className="font-mono">
-                      {fmtPrice(
-                        activeSymbol,
-                        orderType === "Buy"
-                          ? currentPrice + fee.spreadPips
-                          : currentPrice - fee.spreadPips,
-                      )}
-                    </span>
+                    <span className="font-mono">{fmtPrice(activeSymbol, entryPrice)}</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-(--text-white-50)">Spread cost</span>
+                    <span className="font-mono text-red-400">−{fmt(spreadCostUsd)}</span>
+                  </div>
+                  {riskUsd !== null && (
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 mt-1">
+                      <span className="text-(--text-white-50)">Risk if SL hits</span>
+                      <span className={`font-mono font-semibold ${riskUsd < 0 ? "text-red-400" : "text-emerald-400"}`}>
+                        {riskUsd >= 0 ? "+" : ""}{fmt(riskUsd)}
+                      </span>
+                    </div>
+                  )}
+                  {rewardUsd !== null && (
+                    <div className="flex justify-between">
+                      <span className="text-(--text-white-50)">Reward if TP hits</span>
+                      <span className={`font-mono font-semibold ${rewardUsd >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        {rewardUsd >= 0 ? "+" : ""}{fmt(rewardUsd)}
+                      </span>
+                    </div>
+                  )}
+                  {riskUsd !== null && rewardUsd !== null && riskUsd < 0 && rewardUsd > 0 && (
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 mt-1">
+                      <span className="text-(--text-white-50)">R:R ratio</span>
+                      <span className="font-mono font-semibold text-(--primary-default)">
+                        1 : {(rewardUsd / Math.abs(riskUsd)).toFixed(1)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -892,11 +920,11 @@ export default function DashboardTradingPage() {
               <div className="bg-white/3 rounded-lg p-3 space-y-1.5 text-xs">
                 <div className="flex justify-between">
                   <span className="text-(--text-white-50)">Spread</span>
-                  <span>{fee.spread}</span>
+                  <span>{feeInfo.spread}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-(--text-white-50)">Commission</span>
-                  <span>{fee.commission}</span>
+                  <span>{feeInfo.commission}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-(--text-white-50)">
@@ -905,26 +933,21 @@ export default function DashboardTradingPage() {
                   <span
                     className={
                       parseFloat(
-                        orderType === "Buy" ? fee.swap_long : fee.swap_short,
+                        orderType === "Buy" ? feeInfo.swap_long : feeInfo.swap_short,
                       ) < 0
                         ? "text-red-400"
                         : "text-emerald-400"
                     }
                   >
-                    {orderType === "Buy" ? fee.swap_long : fee.swap_short} pts
+                    {orderType === "Buy" ? feeInfo.swap_long : feeInfo.swap_short} pts
                   </span>
                 </div>
               </div>
 
-              {/* Error / success feedback */}
+              {/* Error feedback */}
               {orderError && (
                 <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                   {orderError}
-                </p>
-              )}
-              {orderSuccess && (
-                <p className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
-                  ✓ {orderSuccess}
                 </p>
               )}
             </div>
@@ -942,9 +965,6 @@ export default function DashboardTradingPage() {
               >
                 {submitting ? "Placing…" : `Place ${orderType} Order`}
               </button>
-              <p className="text-xs text-(--text-white-50) text-center mt-2">
-                Simulated prop challenge account
-              </p>
             </div>
           </aside>
         </div>
@@ -976,6 +996,172 @@ export default function DashboardTradingPage() {
           New Order
         </button>
       </div>
+
+      {/* ── Confirm Order Modal ───────────────────────────────────────── */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-(--background-card) border border-(--border-normal) rounded-2xl max-w-sm w-full p-6 space-y-4">
+            <h3 className="text-base font-bold text-(--global-text)">Confirm Order</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-(--text-white-50)">Pair</span>
+                <span className="font-semibold">{activeSymbol}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-(--text-white-50)">Direction</span>
+                <span className={`font-bold ${orderType === "Buy" ? "text-emerald-400" : "text-red-400"}`}>{orderType}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-(--text-white-50)">Lot size</span>
+                <span className="font-mono">{lotSize.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-(--text-white-50)">Entry price</span>
+                <span className="font-mono">{fmtPrice(activeSymbol, entryPrice)}</span>
+              </div>
+              {spreadCostUsd > 0 && (
+                <div className="flex justify-between border-t border-(--border-normal) pt-2">
+                  <span className="text-(--text-white-50)">Spread cost</span>
+                  <span className="font-mono text-red-400">−{fmt(spreadCostUsd)}</span>
+                </div>
+              )}
+              {riskUsd !== null && (
+                <div className="flex justify-between">
+                  <span className="text-(--text-white-50)">Max risk (SL)</span>
+                  <span className={`font-mono font-semibold ${riskUsd < 0 ? "text-red-400" : "text-emerald-400"}`}>
+                    {riskUsd >= 0 ? "+" : ""}{fmt(riskUsd)}
+                  </span>
+                </div>
+              )}
+              {rewardUsd !== null && (
+                <div className="flex justify-between">
+                  <span className="text-(--text-white-50)">Max reward (TP)</span>
+                  <span className={`font-mono font-semibold ${rewardUsd >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {rewardUsd >= 0 ? "+" : ""}{fmt(rewardUsd)}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 py-2.5 rounded-lg border border-(--border-normal) text-sm font-medium text-(--global-text) hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmOrder}
+                disabled={submitting}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  orderType === "Buy" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                }`}
+              >
+                {submitting ? "Placing…" : `Confirm ${orderType}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Position Detail Modal ─────────────────────────────────────────── */}
+      {(() => {
+        const p = selectedPositionId
+          ? openPositions.find((t) => t.id === selectedPositionId)
+          : null;
+        if (!p) return null;
+        const cur = prices[p.pair] ?? p.open_price;
+        const pnl = calcPnl(p.pair, p.type, p.size, p.open_price, cur);
+        const isClosing = closingId === p.id;
+        return (
+          <div
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedPositionId(null)}
+          >
+            <div
+              className="bg-(--background-card) border border-(--border-normal) rounded-2xl max-w-sm w-full p-6 space-y-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-base font-bold text-(--global-text)">{p.pair}</p>
+                  <span
+                    className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-semibold ${
+                      p.type === "Buy"
+                        ? "bg-emerald-500/15 text-emerald-400"
+                        : "bg-red-500/15 text-red-400"
+                    }`}
+                  >
+                    {p.type}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedPositionId(null)}
+                  className="text-(--text-white-50) hover:text-(--global-text) transition-colors p-1 -mr-1 -mt-1"
+                  aria-label="Close"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Details grid */}
+              <div className="bg-white/3 rounded-xl p-4 space-y-2.5 text-sm">
+                {[
+                  { label: "Lot size", value: p.size.toFixed(2) },
+                  { label: "Open price", value: fmtPrice(p.pair, p.open_price), mono: true },
+                  { label: "Current price", value: fmtPrice(p.pair, cur), mono: true },
+                  { label: "Stop Loss", value: p.sl ? fmtPrice(p.pair, p.sl) : "—", color: "text-red-400", mono: true },
+                  { label: "Take Profit", value: p.tp ? fmtPrice(p.pair, p.tp) : "—", color: "text-emerald-400", mono: true },
+                  {
+                    label: "Opened",
+                    value: new Date(p.opened_at).toLocaleString("en-US", {
+                      day: "2-digit", month: "short", year: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    }),
+                  },
+                ].map(({ label, value, color, mono }) => (
+                  <div key={label} className="flex justify-between items-center gap-4">
+                    <span className="text-(--text-white-50) text-xs">{label}</span>
+                    <span className={`text-xs font-medium ${color ?? "text-(--global-text)"} ${mono ? "font-mono" : ""}`}>{value}</span>
+                  </div>
+                ))}
+
+                {/* Unrealized P&L — highlighted */}
+                <div className="flex justify-between items-center gap-4 border-t border-white/10 pt-2.5 mt-0.5">
+                  <span className="text-(--text-white-50) text-xs">Unrealized P&L</span>
+                  <span className={`text-sm font-bold font-mono ${pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {pnl >= 0 ? "+" : ""}{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(pnl)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSelectedPositionId(null)}
+                  className="flex-1 py-2.5 rounded-lg border border-(--border-normal) text-sm font-medium text-(--global-text) hover:bg-white/5 transition-colors"
+                >
+                  Dismiss
+                </button>
+                <button
+                  onClick={async () => {
+                    await handleCloseTrade(p.id);
+                    setSelectedPositionId(null);
+                  }}
+                  disabled={isClosing}
+                  className="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isClosing ? "Closing…" : "Close Trade"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

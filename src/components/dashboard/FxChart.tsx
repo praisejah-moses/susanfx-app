@@ -9,12 +9,14 @@ import {
   type CandlestickData,
   type Time,
 } from "lightweight-charts";
+import type { TradeRow } from "../../types/database";
 
 type ChartType = "candlestick" | "line";
 type Timeframe = "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
 
 interface FxChartProps {
   symbol: string;
+  trades?: TradeRow[];
 }
 
 // ── Seed realistic OHLCV data ────────────────────────────────────────────────
@@ -67,11 +69,12 @@ const BASE_PRICES: Record<string, number> = {
   "BTC/USD": 62400,
 };
 
-export default function FxChart({ symbol }: FxChartProps) {
+export default function FxChart({ symbol, trades }: FxChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const lineSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
+  const priceLinessRef = useRef<Array<any>>([]);
 
   const [chartType, setChartType] = useState<ChartType>("candlestick");
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
@@ -228,6 +231,54 @@ export default function FxChart({ symbol }: FxChartProps) {
       chartRef.current = null;
     };
   }, [symbol, timeframe, chartType]);
+
+  // ── Add price lines for trades ────────────────────────────────────────────
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    // Get the series (either candlestick or line)
+    const series = candleSeriesRef.current || lineSeriesRef.current;
+    if (!series) return;
+
+    // Remove all existing price lines
+    priceLinessRef.current.forEach((priceLine) => {
+      series.removePriceLine(priceLine);
+    });
+    priceLinessRef.current = [];
+
+    // Filter trades for current symbol with Open status
+    const relevantTrades = (trades || []).filter(
+      (t) => t.pair === symbol && t.status === "Open",
+    );
+
+    // Create new price lines for open trades
+    relevantTrades.forEach((trade) => {
+      const color = trade.type === "Buy" ? "#22c55e" : "#ef4444";
+      const title = `${trade.type} ${trade.size}L @ ${trade.open_price.toFixed(5)}`;
+
+      const priceLine = series.createPriceLine({
+        price: trade.open_price,
+        color: color,
+        lineWidth: 2,
+        lineStyle: 2, // Dashed line
+        axisLabelVisible: true,
+        title: title,
+      });
+
+      priceLinessRef.current.push(priceLine);
+    });
+
+    return () => {
+      // Clean up price lines when component unmounts or dependencies change
+      if (series) {
+        priceLinessRef.current.forEach((priceLine) => {
+          series.removePriceLine(priceLine);
+        });
+        priceLinessRef.current = [];
+      }
+    };
+  }, [symbol, trades]);
 
   const timeframes: Timeframe[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
   const isUp = priceChange.value >= 0;
